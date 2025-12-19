@@ -216,5 +216,19 @@
 
   <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
   <script src="./script.js"></script>
+  <!-- Lightbox -->
+<div id="lightbox" class="lightbox" aria-hidden="true">
+  <div class="lightbox__backdrop" data-close="true"></div>
+
+  <figure class="lightbox__content" role="dialog" aria-modal="true" aria-label="Image preview">
+    <button class="lightbox__close" type="button" aria-label="Close" data-close="true">✕</button>
+    <img id="lightbox-img" alt="" />
+    <figcaption>
+      <div id="lightbox-title" class="lightbox__title"></div>
+      <div id="lightbox-caption" class="lightbox__caption"></div>
+    </figcaption>
+  </figure>
+</div>
+
 </body>
 </html>

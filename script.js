@@ -21,20 +21,68 @@ if(toggle){
 
 // Gallery
 fetch('./assets/gallery.json').then(r=>r.json()).then(items=>{
-  const grid=document.querySelector('.gallery');
-  if(!grid) return;
-  grid.innerHTML='';
-  items.filter(i=>i.src).forEach(item=>{
-    const fig=document.createElement('figure');
-    const img=document.createElement('img');
-    img.src=item.src; img.alt=item.title||'Minibadge photo';
-    img.loading="lazy";
-    const cap=document.createElement('figcaption');
-    cap.textContent=item.caption||'';
-    fig.appendChild(img); fig.appendChild(cap);
-    grid.appendChild(fig);
+  // Gallery + Lightbox
+const lightbox = document.getElementById('lightbox');
+const lbImg = document.getElementById('lightbox-img');
+const lbTitle = document.getElementById('lightbox-title');
+const lbCaption = document.getElementById('lightbox-caption');
+
+function openLightbox({ src, title, caption }) {
+  if (!lightbox || !lbImg) return;
+  lbImg.src = src;
+  lbImg.alt = title || 'Gallery image';
+  if (lbTitle) lbTitle.textContent = title || '';
+  if (lbCaption) lbCaption.textContent = caption || '';
+  lightbox.classList.add('is-open');
+  lightbox.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  if (!lightbox) return;
+  lightbox.classList.remove('is-open');
+  lightbox.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+  if (lbImg) lbImg.src = '';
+}
+
+// Close actions
+if (lightbox) {
+  lightbox.addEventListener('click', (e) => {
+    const t = e.target;
+    if (t && t.dataset && t.dataset.close) closeLightbox();
   });
-}).catch(()=>{});
+}
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && lightbox?.classList.contains('is-open')) closeLightbox();
+});
+
+fetch('./assets/gallery.json')
+  .then(r => r.json())
+  .then(items => {
+    const grid = document.querySelector('.gallery');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    items.filter(i => i.src).forEach(item => {
+      const fig = document.createElement('figure');
+
+      const img = document.createElement('img');
+      img.src = item.src;
+      img.alt = item.title || 'Minibadge photo';
+      img.loading = "lazy";
+      img.addEventListener('click', () => openLightbox(item));
+
+      const cap = document.createElement('figcaption');
+      cap.textContent = item.caption || '';
+
+      fig.appendChild(img);
+      fig.appendChild(cap);
+      grid.appendChild(fig);
+    });
+  })
+  .catch(() => {});
+
 
 // Testimonials
 fetch('./assets/testimonials.json').then(r=>r.json()).then(items=>{

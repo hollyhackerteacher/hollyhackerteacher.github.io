@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Firebolt Services — PCB Art, Minibadges, Speaking</title>
+  <title>Firebolt Services —Minibadges, Speaking, and Educating</title>
   <meta name="description" content="Custom PCB art & SAINTCON minibadges by David Bowman. Speaking & training that makes technology accessible." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,7 +15,10 @@
 <body>
   <nav class="nav">
     <div class="container nav__inner">
-      <a class="brand" href="#home"><span class="brand__dot"></span><span>Firebolt Services</span></a>
+      <a class="brand" href="#home">
+  <img src="assets/firebolt-crescent.png" alt="Firebolt Services" class="brand__logo" />
+  <span class="brand__text">Firebolt Services</span>
+</a>
       <button class="menu-toggle btn btn--ghost" type="button">Menu</button>
       <div class="nav__links">
         <a href="#minibadges">Minibadges</a>
@@ -76,7 +79,6 @@
         <h3>SAINTCON-ready</h3>
         <p>Layouts tailored to badge ecosystems and power constraints, with test points and debug pads volunteers appreciate.</p>
         <h3 style="margin-top:14px;">Fast iterations</h3>
-        <p>DRC-clean layouts and quick prototype loops so you can approve art and send to fab with confidence.</p>
       </div>
     </div>
   </section>
@@ -84,7 +86,7 @@
   <section id="why" class="section section--tight">
     <div class="container">
       <h2>Why they work</h2>
-      <p class="kicker">Minibadges create a longer, more meaningful interaction than traditional swag — people actively seek them out and assemble them on the spot.</p>
+      <p class="kicker">Minibadges create a longer, more meaningful interaction than traditional swag — people actively seek them out and assemble them taking an average of 5 minutes where you are getting full brand exposure.</p>
       <div class="cards" style="margin-top:18px;">
         <div class="card"><h3>Make your mark</h3><p>Stand out with eye‑catching designs that turn attendees into brand ambassadors.</p></div>
         <div class="card"><h3>Draw attendees</h3><p>Collectors seek minibadges, creating more intentional conversations at your table.</p></div>
@@ -96,7 +98,7 @@
   <section id="colors" class="section">
     <div class="container">
       <h2>PCB color options</h2>
-      <p class="kicker">Copper stays copper — the soldermask sets the background. Options are limited, so we pick the best available mask color for the look you want.</p>
+      <p class="kicker">Color options are limited, so we pick the best available mask color for the look you want.</p>
 
       <div class="mini-swatch-row" aria-label="PCB soldermask colors">
         <div class="mini-swatch s-green">Green</div>
@@ -110,7 +112,7 @@
 
       <div class="card" style="margin-top:18px;">
         <h3>Full‑color silkscreen (premium)</h3>
-        <p>Full‑color silkscreen printing enables gradients and multi‑tone artwork for showcase runs. It’s a higher‑cost option with longer turnaround, so it’s best used when presentation matters more than quantity.</p>
+        <p>Full‑color silkscreen printing enables gradients and multi‑tone artwork for showcase runs.</p>
       </div>
     </div>
   </section>
@@ -216,19 +218,5 @@
 
   <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
   <script src="./script.js"></script>
-  <!-- Lightbox -->
-<div id="lightbox" class="lightbox" aria-hidden="true">
-  <div class="lightbox__backdrop" data-close="true"></div>
-
-  <figure class="lightbox__content" role="dialog" aria-modal="true" aria-label="Image preview">
-    <button class="lightbox__close" type="button" aria-label="Close" data-close="true">✕</button>
-    <img id="lightbox-img" alt="" />
-    <figcaption>
-      <div id="lightbox-title" class="lightbox__title"></div>
-      <div id="lightbox-caption" class="lightbox__caption"></div>
-    </figcaption>
-  </figure>
-</div>
-
 </body>
 </html>

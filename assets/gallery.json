@@ -1,0 +1,17 @@
+[
+  {
+    "src": "assets/gallery/example_1.jpeg",
+    "title": "Example 1",
+    "caption": "Replace with a real minibadge photo"
+  },
+  {
+    "src": "assets/gallery/example_2.jpeg",
+    "title": "Example 2",
+    "caption": "Replace with a real minibadge photo"
+  },
+  {
+    "src": "assets/gallery/example_3.jpeg",
+    "title": "Example 3",
+    "caption": "Replace with a real minibadge photo"
+  }
+]

@@ -1,17 +1,42 @@
 [
   {
-    "src": "assets/gallery/example_1.jpeg",
-    "title": "Example 1",
-    "caption": "Replace with a real minibadge photo"
+    "src": "assets/gallery/Silverfort.jpg",
+    "title": "Silverfort Minibadge",
+    "caption": "2 Part Design"
   },
   {
-    "src": "assets/gallery/example_2.jpeg",
-    "title": "Example 2",
-    "caption": "Replace with a real minibadge photo"
+    "src": "assets/gallery/TrendMicro1.jpg",
+    "title": "Trend Micro Minibadge",
+    "caption": "White PCB Variant"
   },
   {
-    "src": "assets/gallery/example_3.jpeg",
-    "title": "Example 3",
-    "caption": "Replace with a real minibadge photo"
+    "src": "assets/gallery/TrendMicro2.jpg",
+    "title": "Trend Micro Minibadge (Alt)",
+    "caption": "Black PCB Variant"
+  },
+  {
+    "src": "assets/gallery/PaloRed.jpg",
+    "title": "Palo Alto Networks",
+    "caption": "Multi-Layer Red"
+  },
+  {
+    "src": "assets/gallery/PaloBlack.jpg",
+    "title": "Palo Alto Networks",
+    "caption": "Multi-Layer Black"
+  },
+  {
+    "src": "assets/gallery/VaronisGreen.jpg",
+    "title": "Varonis Minibadge",
+    "caption": "Green PCB Variant"
+  },
+  {
+    "src": "assets/gallery/VaronisWhite.jpg",
+    "title": "Varonis Minibadge",
+    "caption": "White PCB Variant"
+  },
+  {
+    "src": "assets/gallery/ManagedMethods.jpg",
+    "title": "ManagedMethods",
+    "caption": "Oversize Design"
   }
 ]

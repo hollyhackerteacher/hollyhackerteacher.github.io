@@ -310,3 +310,8 @@ h3{ font-size:1.2rem; }
 .gallery img{
   cursor: zoom-in;
 }
+/* Zoho form embed inside card */
+#zf_div_NaoV1gLlQOfG6ZZWhldfTg1MUe3XkddRGGMDCMdsx-8 iframe{
+  border-radius: 12px;
+  background: transparent;
+}

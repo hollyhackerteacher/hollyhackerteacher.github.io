@@ -315,3 +315,12 @@ h3{ font-size:1.2rem; }
   border-radius: 12px;
   background: transparent;
 }
+
+/* Anchor offset for fixed nav */
+.anchor-offset{
+  position: relative;
+  top: -90px; /* match nav height */
+  display: block;
+  height: 0;
+  visibility: hidden;
+}

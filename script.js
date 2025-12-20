@@ -1,27 +1,29 @@
-
 // Smooth scroll
-document.querySelectorAll('a[href^="#"]').forEach(a=>{
-  a.addEventListener('click', (e)=>{
-    const href=a.getAttribute('href');
-    if(href && href.length>1){
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', (e) => {
+    const href = a.getAttribute('href');
+    if (href && href.length > 1) {
       e.preventDefault();
-      document.querySelector(href)?.scrollIntoView({behavior:'smooth'});
+      document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
     }
   });
 });
 
 // Mobile menu
 const toggle = document.querySelector('.menu-toggle');
-if(toggle){
-  toggle.addEventListener('click', ()=>{
-    const links=document.querySelector('.nav__links');
-    if(links) links.style.display = (links.style.display==='flex') ? 'none' : 'flex';
+if (toggle) {
+  toggle.addEventListener('click', () => {
+    const links = document.querySelector('.nav__links');
+    if (!links) return;
+    links.style.display = (links.style.display === 'flex') ? 'none' : 'flex';
   });
 }
 
-// Gallery
-fetch('./assets/gallery.json').then(r=>r.json()).then(items=>{
-  // Gallery + Lightbox
+/**
+ * Optional Lightbox support:
+ * - Works only if the lightbox markup exists in index.html.
+ * - If it doesn't exist, gallery will still render normally.
+ */
 const lightbox = document.getElementById('lightbox');
 const lbImg = document.getElementById('lightbox-img');
 const lbTitle = document.getElementById('lightbox-title');
@@ -46,22 +48,26 @@ function closeLightbox() {
   if (lbImg) lbImg.src = '';
 }
 
-// Close actions
 if (lightbox) {
   lightbox.addEventListener('click', (e) => {
     const t = e.target;
     if (t && t.dataset && t.dataset.close) closeLightbox();
   });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && lightbox.classList.contains('is-open')) closeLightbox();
+  });
 }
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && lightbox?.classList.contains('is-open')) closeLightbox();
-});
 
+// Gallery
 fetch('./assets/gallery.json')
-  .then(r => r.json())
+  .then(r => {
+    if (!r.ok) throw new Error(`gallery.json fetch failed: ${r.status}`);
+    return r.json();
+  })
   .then(items => {
     const grid = document.querySelector('.gallery');
     if (!grid) return;
+
     grid.innerHTML = '';
 
     items.filter(i => i.src).forEach(item => {
@@ -70,8 +76,10 @@ fetch('./assets/gallery.json')
       const img = document.createElement('img');
       img.src = item.src;
       img.alt = item.title || 'Minibadge photo';
-      img.loading = "lazy";
-      img.addEventListener('click', () => openLightbox(item));
+      img.loading = 'lazy';
+
+      // Only attach lightbox click if lightbox exists on the page
+      if (lightbox) img.addEventListener('click', () => openLightbox(item));
 
       const cap = document.createElement('figcaption');
       cap.textContent = item.caption || '';
@@ -81,48 +89,68 @@ fetch('./assets/gallery.json')
       grid.appendChild(fig);
     });
   })
-  .catch(() => {});
-
+  .catch(err => {
+    console.error(err);
+  });
 
 // Testimonials
-fetch('./assets/testimonials.json').then(r=>r.json()).then(items=>{
-  const wrap=document.querySelector('#references .cards');
-  if(!wrap) return;
-  wrap.innerHTML='';
-  items.forEach(t=>{
-    const card=document.createElement('div');
-    card.className='card';
-    const p=document.createElement('p');
-    p.textContent='“'+t.quote+'”';
-    const a=document.createElement('p');
-    a.style.marginTop='.6rem';
-    a.style.color='var(--muted)';
-    a.textContent='— '+(t.author||'Client');
-    card.appendChild(p); card.appendChild(a);
-    wrap.appendChild(card);
+fetch('./assets/testimonials.json')
+  .then(r => {
+    if (!r.ok) throw new Error(`testimonials.json fetch failed: ${r.status}`);
+    return r.json();
+  })
+  .then(items => {
+    const wrap = document.querySelector('#references .cards');
+    if (!wrap) return;
+
+    wrap.innerHTML = '';
+
+    items.forEach(t => {
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      const p = document.createElement('p');
+      p.textContent = '“' + (t.quote || '') + '”';
+
+      const a = document.createElement('p');
+      a.style.marginTop = '.6rem';
+      a.style.color = 'var(--muted)';
+      a.textContent = '— ' + (t.author || 'Client');
+
+      card.appendChild(p);
+      card.appendChild(a);
+      wrap.appendChild(card);
+    });
+  })
+  .catch(err => {
+    console.error(err);
   });
-}).catch(()=>{});
 
 // Contact protection + email reveal
-(function(){
-  const form=document.getElementById('contact-form');
-  if(!form) return;
-  const started=Date.now();
-  const ts=document.getElementById('submitted_at');
-  if(ts) ts.value=new Date().toISOString();
-  form.addEventListener('submit',(e)=>{
-    if(form.website && form.website.value){ e.preventDefault(); return false; }
-    if(Date.now()-started < 4500){ e.preventDefault(); alert('Please take a moment to complete the form.'); return false; }
+(function () {
+  const form = document.getElementById('contact-form');
+  if (!form) return;
+
+  const started = Date.now();
+  const ts = document.getElementById('submitted_at');
+  if (ts) ts.value = new Date().toISOString();
+
+  form.addEventListener('submit', (e) => {
+    if (form.website && form.website.value) { e.preventDefault(); return false; }
+    if (Date.now() - started < 4500) {
+      e.preventDefault();
+      alert('Please take a moment to complete the form.');
+      return false;
+    }
   });
 
-  const btn=document.getElementById('reveal-email');
-  const slot=document.getElementById('email-slot');
-  if(btn && slot){
-    // Replace with your real email before deploying:
-    const reversed='moc.liamg@tluobretif'.split('').reverse().join('');
-    btn.addEventListener('click', ()=>{
-      slot.textContent=reversed;
-      btn.style.display='none';
+  const btn = document.getElementById('reveal-email');
+  const slot = document.getElementById('email-slot');
+  if (btn && slot) {
+    const reversed = 'moc.liamg@tluobretif'.split('').reverse().join('');
+    btn.addEventListener('click', () => {
+      slot.textContent = reversed;
+      btn.style.display = 'none';
     });
   }
 })();

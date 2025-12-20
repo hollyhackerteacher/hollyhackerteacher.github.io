@@ -303,36 +303,65 @@
 </section>
 
   <!-- Contact -->
-  <section id="contact" class="section">
-    <div class="container">
-      <h2>Start an inquiry</h2>
-      <div class="cards" style="margin-top:18px;">
-        <div class="card">
-          <form id="contact-form" class="form" action="https://formspree.io/f/your-form-id" method="POST">
-            <label>Topic<br/>
-              <select name="topic" required>
-                <option value="" disabled selected>Select one</option>
-                <option>PCB art & minibadge commission</option>
-                <option>Speaking & training</option>
-                <option>Public Official Technology Review</option>
-              </select>
-            </label><br/><br/>
+  <div class="card">
+  <h3>Use the form</h3>
+  <p class="kicker">
+    One inbox for PCB quotes, speaking, or public official review.
+  </p>
 
-            <label>Name<br/><input name="name" required></label><br/><br/>
-            <label>Email<br/><input type="email" name="email" required></label><br/><br/>
-            <label>Message<br/>
-              <textarea name="message" rows="6" required></textarea>
-            </label><br/><br/>
+  <div id="zf_div_NaoV1gLlQOfG6ZZWhldfTg1MUe3XkddRGGMDCMdsx-8"></div>
 
-            <input type="text" name="website" style="display:none">
-            <input type="hidden" name="submitted_at" id="submitted_at">
+  <script type="text/javascript">
+  (function() {
+    try{
+      var f = document.createElement("iframe");
+      var ifrmSrc = "https://forms.zohopublic.com/davidbowmanfirebolt1/form/ContactUs/formperma/NaoV1gLlQOfG6ZZWhldfTg1MUe3XkddRGGMDCMdsx-8?zf_rszfm=1";
+      f.src = ifrmSrc;
+      f.style.border = "none";
+      f.style.height = "999px";
+      f.style.width = "100%";
+      f.style.transition = "all 0.5s ease";
+      f.setAttribute("aria-label", "Contact Us");
 
-            <button class="btn btn--primary" type="submit">Send</button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </section>
+      var d = document.getElementById("zf_div_NaoV1gLlQOfG6ZZWhldfTg1MUe3XkddRGGMDCMdsx-8");
+      d.appendChild(f);
+
+      window.addEventListener("message", function (event){
+        var evntData = event.data;
+        if(evntData && evntData.constructor == String){
+          var zf_ifrm_data = evntData.split("|");
+          if(zf_ifrm_data.length == 2 || zf_ifrm_data.length == 3){
+            var zf_perma = zf_ifrm_data[0];
+            var zf_ifrm_ht_nw = (parseInt(zf_ifrm_data[1], 10) + 15) + "px";
+            var iframe = document
+              .getElementById("zf_div_NaoV1gLlQOfG6ZZWhldfTg1MUe3XkddRGGMDCMdsx-8")
+              .getElementsByTagName("iframe")[0];
+
+            if((iframe.src).indexOf("formperma") > 0 && (iframe.src).indexOf(zf_perma) > 0){
+              var prevIframeHeight = iframe.style.height;
+              var zf_tout = false;
+
+              if(zf_ifrm_data.length == 3){
+                iframe.scrollIntoView();
+                zf_tout = true;
+              }
+
+              if(prevIframeHeight != zf_ifrm_ht_nw){
+                if(zf_tout){
+                  setTimeout(function(){ iframe.style.height = zf_ifrm_ht_nw; }, 500);
+                } else {
+                  iframe.style.height = zf_ifrm_ht_nw;
+                }
+              }
+            }
+          }
+        }
+      }, false);
+    }catch(e){}
+  })();
+  </script>
+</div>
+
 
   <footer class="footer">
     <div class="container">

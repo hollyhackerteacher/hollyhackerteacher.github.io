@@ -126,31 +126,3 @@ fetch('./assets/testimonials.json')
     console.error(err);
   });
 
-// Contact protection + email reveal
-(function () {
-  const form = document.getElementById('contact-form');
-  if (!form) return;
-
-  const started = Date.now();
-  const ts = document.getElementById('submitted_at');
-  if (ts) ts.value = new Date().toISOString();
-
-  form.addEventListener('submit', (e) => {
-    if (form.website && form.website.value) { e.preventDefault(); return false; }
-    if (Date.now() - started < 4500) {
-      e.preventDefault();
-      alert('Please take a moment to complete the form.');
-      return false;
-    }
-  });
-
-  const btn = document.getElementById('reveal-email');
-  const slot = document.getElementById('email-slot');
-  if (btn && slot) {
-    const reversed = 'moc.liamg@tluobretif'.split('').reverse().join('');
-    btn.addEventListener('click', () => {
-      slot.textContent = reversed;
-      btn.style.display = 'none';
-    });
-  }
-})();

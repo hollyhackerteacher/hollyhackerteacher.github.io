@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Request another run — Firebolt Services</title>
+  <meta name="description" content="Missed the 20-kit Gummi Bears run? Request a special run from Hollyhacker, only if you really want a kit.">
+  <meta name="theme-color" content="#0b0f0c">
+  <link rel="canonical" href="https://www.fireboltservices.com/shop/request/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <a class="shop-skip" href="#request">Skip to request</a>
+  <header class="shop-header">
+    <nav class="container shop-header__inner" aria-label="Shop navigation">
+      <a class="brand" href="/">
+        <span class="brand__dot" aria-hidden="true"></span>
+        <span>Firebolt Services <span class="shop-header__label">/ Shop</span></span>
+      </a>
+      <a class="shop-header__contact" href="/shop/">Back to the shop <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+
+  <main id="request" class="container shop-page request-page">
+    <div class="shop-intro">
+      <p class="shop-intro__eyebrow">Gummi Bears MiniBadge Display Board</p>
+      <h1>Missed this run?<br><span>Request another.</span></h1>
+      <p class="kicker">The current run is limited to 20 kits. If it sells out, you can ask Hollyhacker for a special run.</p>
+      <p class="kicker">Please join only if you really want a kit. These requests help Hollyhacker plan a special run for the people on this list.</p>
+    </div>
+
+    <form id="request-consent" class="card request-consent">
+      <h2>Before you join the list</h2>
+      <label class="request-consent__label" for="special-run-acknowledgement">
+        <input type="checkbox" id="special-run-acknowledgement" name="special_run_acknowledgement" value="gummi-bears-special-run-ack-v1" required aria-describedby="request-note">
+        <span>I understand that by joining this list I’m asking Hollyhacker to make a special run of the Gummi Bears kit. I really want a kit and intend to buy one if another run is offered.</span>
+      </label>
+      <p id="request-note" class="request-consent__note">No payment is taken here. We’ll contact you about availability for another run.</p>
+      <button class="btn btn--primary" type="submit" aria-controls="request-form" aria-expanded="false">Continue to request form <span aria-hidden="true">→</span></button>
+    </form>
+
+    <section id="request-form" class="request-form" aria-labelledby="request-form-heading" hidden>
+      <h2 id="request-form-heading" tabindex="-1">Send your special-run request</h2>
+      <p id="request-instructions" class="request-form__instructions">Enter your name and email below. In Message, write “Gummi Bears special run” and how many kits you would like. Select Submit to send your request.</p>
+      <div id="request-form-embed"></div>
+      <p class="request-form__fallback">Form not loading? <a id="request-form-link" target="_blank" rel="noopener">Open the request form in a new tab.</a> Include “Gummi Bears special run” in your message.</p>
+    </section>
+    <noscript><p>Enable JavaScript to acknowledge the special run and open the request form.</p></noscript>
+    <p><a class="request-page__back" href="/shop/">← Back to the shop</a></p>
+  </main>
+
+  <footer class="footer">
+    <div class="container shop-footer__inner">
+      <span>© <span id="shop-year">2026</span> Firebolt Services</span>
+      <a href="/">Visit Firebolt Services <span aria-hidden="true">↗</span></a>
+    </div>
+  </footer>
+  <script type="module" src="./request.mjs"></script>
+</body>
+</html>

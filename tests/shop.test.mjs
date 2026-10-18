@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
-import { checkoutUrl, purchaseState, formatPrice } from '../shop.mjs';
+import { checkoutUrl, purchaseState, formatPrice, requestUrl } from '../shop.mjs';
+import { REQUEST_FORM_URL, REQUEST_REFERRER } from '../shop/request/request.mjs';
 
 const { products } = JSON.parse(readFileSync(new URL('../assets/products.json', import.meta.url)));
 const kit = products[0];
@@ -9,6 +10,8 @@ const kit = products[0];
 test('published catalog has the real kit, $30 total, delivery terms, and all three photos', () => {
   assert.equal(kit.priceInCents, 3000);
   assert.equal(kit.currency, 'USD');
+  assert.equal(kit.runLimit, 20);
+  assert.equal(kit.requestPath, '/shop/request/');
   assert.match(kit.priceNote, /Sales tax included/);
   assert.match(kit.priceNote, /No added card fee/);
   assert.match(kit.pickup, /Free pickup at SAINTCON/);
@@ -51,6 +54,22 @@ test('sandbox links are explicitly labeled as test checkout', () => {
   const state = purchaseState({ ...kit, status: 'available', paymentLink: 'https://buy.stripe.com/test_Example' });
   assert.equal(state.test, true);
   assert.match(state.label, /no real payment/);
+});
+
+test('special-run requests stay on the dedicated local request page', () => {
+  assert.equal(requestUrl(kit.requestPath), '/shop/request/');
+  assert.ok(existsSync(new URL('../shop/request/index.html', import.meta.url)));
+  for (const path of [null, '', '//evil.example', 'javascript:alert(1)', 'https://evil.example/shop/request/']) {
+    assert.equal(requestUrl(path), null);
+  }
+});
+
+test('acknowledged requests use the existing contact form with a distinct referral tag', () => {
+  const homepage = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  const form = new URL(REQUEST_FORM_URL);
+  assert.ok(homepage.includes(`${form.origin}${form.pathname}`));
+  assert.equal(form.searchParams.get('referrername'), REQUEST_REFERRER);
+  assert.equal(REQUEST_REFERRER, 'gummi-bears-special-run-ack-v1');
 });
 
 test('price formatting keeps $30 whole and preserves cents for future prices', () => {

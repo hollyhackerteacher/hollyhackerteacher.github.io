@@ -119,7 +119,8 @@ function updateAvailability(article, product, snapshot) {
   const stock = inventoryState(product, snapshot);
   const state = purchaseState(product, stock);
   const availability = article.querySelector('[data-stock-count]');
-  availability.textContent = stockMessage(product, stock);
+  const message = stockMessage(product, stock);
+  if (availability.textContent !== message) availability.textContent = message;
   const checked = article.querySelector('[data-stock-checked]');
   checked.replaceChildren();
   if (stock) {

@@ -29,6 +29,10 @@ export function formatPrice(cents) {
   }).format(cents / 100);
 }
 
+export function requestUrl(path) {
+  return path === '/shop/request/' ? path : null;
+}
+
 function element(tag, className, text) {
   const node = document.createElement(tag);
   if (className) node.className = className;
@@ -93,6 +97,11 @@ export function renderProduct(product) {
   details.append(element('p', 'product__description', product.description));
   details.append(element('p', 'product__price', formatPrice(product.priceInCents)));
   details.append(element('p', 'product__price-note', product.priceNote));
+  if (Number.isSafeInteger(product.runLimit) && product.runLimit > 0) {
+    details.append(element('p', 'product__availability', product.status === 'sold-out'
+      ? `This run of ${product.runLimit} kits has sold out.`
+      : `Limited run: ${product.runLimit} kits. One kit per checkout; availability is confirmed at checkout.`));
+  }
   details.append(element('h4', 'product__subheading', 'In the kit'));
   const features = element('ul', 'product__features');
   (product.features || []).forEach(feature => features.append(element('li', '', feature)));
@@ -116,6 +125,13 @@ export function renderProduct(product) {
     unavailable.type = 'button';
     unavailable.disabled = true;
     actions.append(unavailable);
+  }
+  const moreUrl = requestUrl(product.requestPath);
+  if (moreUrl) {
+    const more = element('a', state.url ? 'product__request' : 'btn btn--primary',
+      state.url ? 'If sold out, request another run →' : 'Request another run');
+    more.href = moreUrl;
+    actions.append(more);
   }
   const contact = element('a', 'product__contact', 'Questions or need shipping? Contact us');
   contact.href = '/#contact';

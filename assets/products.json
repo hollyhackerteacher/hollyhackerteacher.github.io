@@ -42,6 +42,17 @@
           "caption": "The back of the board and AA battery holder."
         }
       ]
+    },
+    {
+      "id": "startrek-medic-communicator-badge",
+      "name": "StarTrek Medic Communicator Badge",
+      "status": "interest-list",
+      "eyebrow": "HealthCare Hacking Community contest prize",
+      "description": "A contest-exclusive badge from the HealthCare Hacking Community.",
+      "contestNote": "You can get the original only by winning a contest at the HealthCare Hacking Community. We’re collecting names for a special run after the con.",
+      "interestNote": "Get on the list if you want one from the special run. No order or payment is taken here.",
+      "requestPath": "/shop/healthcare-special-run/",
+      "images": []
     }
   ]
 }

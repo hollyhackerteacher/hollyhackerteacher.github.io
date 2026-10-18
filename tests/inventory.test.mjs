@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { stockFromPaymentLink, createInventory } from '../scripts/sync-inventory.mjs';
-import { inventoryState, stockMessage, purchaseState } from '../shop.mjs';
+import { inventoryState, stockMessage, purchaseState, inventoryProducts } from '../shop.mjs';
 
 const { products } = JSON.parse(readFileSync(new URL('../assets/products.json', import.meta.url)));
 const kit = products[0];
@@ -118,4 +118,19 @@ test('a deliberately closed link does not offer checkout despite positive stock'
   const stock = inventoryState(kit, snapshot(10, { available: false }), now);
   assert.equal(purchaseState(kit, stock).url, null);
   assert.equal(stockMessage(kit, stock), 'Orders are currently closed.');
+});
+
+test('interest listings never block paid-product snapshots or request Stripe reads', async () => {
+  const interest = { id: 'healthcare-interest', status: 'interest-list', stripePaymentLinkId: 'must-not-be-read' };
+  assert.deepEqual(inventoryProducts([kit, interest]), [kit]);
+  let calls = 0;
+  const client = { paymentLinks: { retrieve: async id => {
+    calls++;
+    assert.equal(id, kit.stripePaymentLinkId);
+    return source();
+  } } };
+  const result = await createInventory({ products: [kit, interest] }, client, new Date(now));
+  assert.equal(calls, 1);
+  assert.deepEqual(Object.keys(result.products), [kit.id]);
+  assert.ok(inventoryState(kit, result, now));
 });

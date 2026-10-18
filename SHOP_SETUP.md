@@ -172,6 +172,29 @@ the customer must select **Submit** and receive Zoho's confirmation.
 
 ## Order handling
 
+### Interest-only listings
+
+Use `status: "interest-list"` for a product that only collects interest. Such
+listings display a **Get on the list** button and do not display a price, stock
+counter, checkout, pickup, or shipping terms. Do not assign Stripe resources to
+these listings. The interest renderer and sync process also reject checkout and
+skip stock reads for this status if payment fields are accidentally supplied.
+
+The **StarTrek Medic Communicator Badge** listing and its HealthCare Hacking
+Community list use `/shop/healthcare-special-run/`.
+It describes the original as a contest prize and collects interest in a special
+run after the con. Joining is not an order and no payment is taken. The required
+acknowledgement confirms serious interest before showing the existing contact
+form. In Zoho **All Entries**, filter **Referrer Name** for
+`healthcare-special-run-interest-v1` to find these enquiries separately from the
+Gummi Bears list. The customer must submit the contact form to send their name,
+email, and message. No Stripe product, price, or Payment Link is needed.
+
+Interest-only items are excluded when validating the paid products' stock
+snapshot, so adding one cannot stop the Gummi Bears stock count from refreshing.
+
+### Paid orders
+
 Orders are handled manually in the Stripe Dashboard. Confirm that the payment
 status is **paid** before handing over or shipping a kit, including orders using
 delayed payment methods. Visiting the shop or a confirmation page is not proof

@@ -25,7 +25,8 @@ export function stockFromPaymentLink(product, link) {
 
 export async function createInventory(catalog, client, now = new Date()) {
   const products = {};
-  for (const product of catalog.products.filter(product => !product.hidden && product.stripePaymentLinkId)) {
+  for (const product of catalog.products.filter(product => !product.hidden &&
+      product.status !== 'interest-list' && product.stripePaymentLinkId)) {
     const link = await client.paymentLinks.retrieve(product.stripePaymentLinkId, { expand: ['line_items'] });
     products[product.id] = stockFromPaymentLink(product, link);
   }

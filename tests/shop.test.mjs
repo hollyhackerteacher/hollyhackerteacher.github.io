@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { checkoutUrl, purchaseState, formatPrice, requestUrl } from '../shop.mjs';
-import { REQUEST_FORM_URL, REQUEST_REFERRER } from '../shop/request/request.mjs';
+import { REQUEST_FORM_URL, REQUEST_REFERRER, requestFormDetails } from '../shop/request/request.mjs';
 
 const { products } = JSON.parse(readFileSync(new URL('../assets/products.json', import.meta.url)));
 const kit = products[0];
@@ -82,4 +82,33 @@ test('the verified 7.45% Provo tax stays inside the $30 total', () => {
   const preTaxCents = Math.round(kit.priceInCents / 1.0745);
   assert.equal(preTaxCents, 2792);
   assert.equal(kit.priceInCents - preTaxCents, 208);
+});
+
+test('an interest listing never offers checkout, even if pricing or a payment link is accidentally supplied', () => {
+  const interest = { ...kit, status: 'interest-list' };
+  assert.deepEqual(purchaseState(interest), { label: 'Get on the list', url: null });
+  assert.equal(purchaseState(interest, { available: false, remaining: 0 }).label, 'Get on the list');
+});
+
+test('the healthcare interest list is tagged separately from Gummi Bears requests', () => {
+  const healthcare = requestFormDetails('healthcare');
+  const gummi = requestFormDetails();
+  assert.equal(gummi.url, REQUEST_FORM_URL);
+  assert.notEqual(healthcare.referrer, gummi.referrer);
+  assert.equal(new URL(healthcare.url).searchParams.get('referrername'), 'healthcare-special-run-interest-v1');
+  assert.equal(requestFormDetails('unknown'), null);
+  assert.equal(requestUrl('/shop/healthcare-special-run/'), '/shop/healthcare-special-run/');
+});
+
+test('the Medic badge catalog entry is an interest list with no Stripe or pricing fields', () => {
+  const badge = products.find(product => product.id === 'startrek-medic-communicator-badge');
+  assert.equal(badge.name, 'StarTrek Medic Communicator Badge');
+  assert.equal(badge.status, 'interest-list');
+  assert.match(badge.contestNote, /only by winning a contest at the HealthCare Hacking Community/);
+  assert.match(badge.contestNote, /special run after the con/);
+  assert.match(badge.interestNote, /No order or payment/);
+  for (const field of ['priceInCents', 'currency', 'paymentLink', 'stripeProductId', 'stripePriceId', 'stripePaymentLinkId']) {
+    assert.equal(Object.hasOwn(badge, field), false, field);
+  }
+  assert.ok(existsSync(new URL(`..${requestUrl(badge.requestPath)}index.html`, import.meta.url)));
 });

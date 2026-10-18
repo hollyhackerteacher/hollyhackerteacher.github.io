@@ -12,6 +12,7 @@ export function checkoutUrl(value) {
 }
 
 export function purchaseState(product, stock = null) {
+  if (product.status === 'interest-list') return { label: 'Get on the list', url: null };
   if (product.status === 'sold-out' || stock?.remaining === 0) return { label: 'Sold out', url: null };
   if (stock?.available === false) return { label: 'Orders currently closed', url: null };
   const url = checkoutUrl(product.paymentLink);
@@ -31,7 +32,11 @@ export function formatPrice(cents) {
 }
 
 export function requestUrl(path) {
-  return path === '/shop/request/' ? path : null;
+  return ['/shop/request/', '/shop/healthcare-special-run/'].includes(path) ? path : null;
+}
+
+export function inventoryProducts(products) {
+  return products.filter(product => product.status !== 'interest-list' && product.stripePaymentLinkId);
 }
 
 export function inventoryState(product, snapshot, now = Date.now()) {
@@ -71,6 +76,13 @@ function productPhotos(product) {
   const images = (product.images || []).filter(image =>
     typeof image.src === 'string' && /^assets\/shop\/[a-z0-9-]+\.(jpg|png|webp)$/i.test(image.src));
   if (!images.length) {
+    if (product.status === 'interest-list') {
+      gallery.classList.add('product-photos--interest');
+      gallery.append(element('p', 'product-photos__interest-label', 'Contest exclusive'));
+      gallery.append(element('p', 'product-photos__interest-title', 'A special run after the con.'));
+      gallery.append(element('p', 'product-photos__interest-caption', 'Interested? Get on the list.'));
+      return gallery;
+    }
     gallery.append(element('p', 'kicker', 'Product photos coming soon.'));
     return gallery;
   }
@@ -180,8 +192,35 @@ export function renderProduct(product, snapshot = null) {
   const article = element('article', 'card product');
   const details = element('div', 'product__details');
   const heading = element('h3', 'product__name', product.name);
-  details.append(element('span', 'pill product__eyebrow', 'Display board + 6 minibadges'), heading);
+  const interest = product.status === 'interest-list';
+  details.append(element('span', 'pill product__eyebrow', product.eyebrow ||
+    (interest ? 'Special-run interest list' : 'Display board + 6 minibadges')), heading);
   details.append(element('p', 'product__description', product.description));
+  if (interest) {
+    if (product.contestNote) details.append(element('p', 'product__interest-context', product.contestNote));
+    if (product.features?.length) {
+      details.append(element('h4', 'product__subheading', product.featuresHeading || 'Details'));
+      const features = element('ul', 'product__features');
+      product.features.forEach(feature => features.append(element('li', '', feature)));
+      details.append(features);
+    }
+    details.append(element('p', 'product__interest-note', product.interestNote ||
+      'Join the interest list for a special run after the con. No payment is taken here.'));
+    const actions = element('div', 'product__actions');
+    const url = requestUrl(product.requestPath);
+    if (url) {
+      const join = element('a', 'btn btn--primary', 'Get on the list');
+      join.href = url;
+      join.setAttribute('aria-label', `Get on the list: ${product.name}`);
+      actions.append(join);
+    }
+    const contact = element('a', 'product__contact', 'Questions? Contact us');
+    contact.href = '/#contact';
+    actions.append(contact);
+    details.append(actions);
+    article.append(productPhotos(product), details);
+    return article;
+  }
   details.append(element('p', 'product__price', formatPrice(product.priceInCents)));
   details.append(element('p', 'product__price-note', product.priceNote));
   const availability = element('p', 'product__availability');
@@ -226,8 +265,9 @@ export async function loadShop() {
     status.textContent = products.length ? '' : 'New items are on the way. Contact us for availability.';
     let snapshot = null;
     let inFlight = false;
+    const trackedProducts = inventoryProducts(products);
     async function refreshInventory() {
-      if (inFlight || document.hidden) return;
+      if (inFlight || document.hidden || !trackedProducts.length) return;
       inFlight = true;
       try {
         const url = new URL('./assets/inventory.json', import.meta.url);
@@ -236,13 +276,15 @@ export async function loadShop() {
         const response = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(10_000) });
         if (!response.ok) throw new Error('Stock snapshot unavailable');
         const next = await response.json();
-        if (products.every(product => inventoryState(product, next)) &&
+        if (trackedProducts.every(product => inventoryState(product, next)) &&
             (!snapshot || Date.parse(next.checkedAt) >= Date.parse(snapshot.checkedAt))) snapshot = next;
       } catch {
         // Keep a known sellout during an outage. A failed refresh must never
         // turn a sold-out product back into a purchasable one.
       } finally {
-        cards.forEach((card, index) => updateAvailability(card, products[index], snapshot));
+        cards.forEach((card, index) => {
+          if (products[index].status !== 'interest-list') updateAvailability(card, products[index], snapshot);
+        });
         inFlight = false;
       }
     }

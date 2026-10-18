@@ -34,7 +34,8 @@
 .product__name{ font-size:clamp(1.5rem, 2.5vw, 2rem); line-height:1.25; }
 .product p.product__price{ font-size:2.5rem; font-weight:800; line-height:1.2; color:var(--ink); margin-top:22px; }
 .product__price-note{ font-size:.9rem; }
-.product p.product__availability{ margin:18px 0; color:var(--firebolt-2); font-size:.95rem; }
+.product p.product__availability{ margin:18px 0 6px; color:var(--firebolt-2); font-size:1.15rem; font-weight:800; }
+.product p.product__stock-checked{ margin:0 0 18px; font-size:.8rem; line-height:1.6; }
 .product__subheading{ font-size:1rem; margin:22px 0 8px; }
 .product__features{ padding-left:20px; margin:0; color:var(--muted); }
 .product__features li{ padding:3px 0; }

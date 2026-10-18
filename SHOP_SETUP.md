@@ -81,13 +81,68 @@ automatically deactivates the link when it is reached, including direct links
 shared outside the website. Opening checkout does not consume a kit.
 
 The link's `inactive_message` explains the sellout and points to
-`https://www.fireboltservices.com/shop/request/`. The shop also has an
-“If sold out, request another run” link so customers can always find the form.
-The listing describes a **20-kit run**, not a live remaining-stock counter.
-GitHub Pages cannot read private Stripe inventory, and there is no backend
-poller or webhook syncing the catalog. The shop button does not automatically
-change to “Sold out”; Stripe enforces availability when it is opened. Set
-`status: "sold-out"` in the catalog when desired to change that button too.
+`https://www.fireboltservices.com/shop/request/`. The shop displays the remaining
+quantity from a Stripe snapshot. At zero it automatically replaces Buy with
+**Request another run**. The secondary request link is also available before
+sellout. The acknowledgement page and its submission service are unchanged.
+
+### Automatic stock sync and deployment
+
+`.github/workflows/shop-pages.yml` builds and deploys the website on pushes to
+`main`, on manual dispatch, and on a five-minute schedule. GitHub's scheduler
+can delay or skip runs under load, so this is periodic availability, not an
+instant reservation system. Normally a purchase appears on the shop within
+5–10 minutes, including deployment; there is no guaranteed maximum delay.
+Public repositories' scheduled workflows can be disabled after 60 days without
+repository activity. Re-enable the workflow before a future conference if needed.
+
+The browser fetches the stock snapshot on load, every minute while the tab is
+visible, and when the tab is reopened. It displays when stock was checked. After
+30 minutes, a positive count is labeled “Last confirmed”. A failed refresh keeps
+the last valid snapshot, especially a known sellout. Without any valid snapshot,
+it omits the remaining count and sends buyers to Stripe to confirm availability.
+The native Stripe cap continues to protect against overselling between syncs.
+
+The workflow needs one dedicated live restricted Stripe key with **Payment Links:
+Read** only, stored as repository Actions secret `STRIPE_INVENTORY_KEY`. It cannot
+be the interactive connector credential: GitHub needs its own unattended access.
+Never paste the key into chat, code, a committed file, or a workflow log. No write
+permissions, customer access, or payment access are needed. The runner uses Stripe
+SDK 23.0.0 and its default API version `2026-09-30.endive`.
+
+`scripts/sync-inventory.mjs` retrieves only the configured Payment Links, checks
+their price/product, fixed quantity, live mode, and native cap, and computes
+`max(0, limit - completed_sessions.count)`. A manually reduced cap accommodates
+offline sales; the workflow never increases a cap, reactivates a link, refunds,
+charges, or fulfills an order. Completed asynchronous checkouts consume the cap
+even while payment is pending, consistently with Stripe's restriction.
+
+The only generated public fields in `_site/assets/inventory.json` are a schema
+version, check time, catalog ID, remaining count, run size, and availability. No
+customer data, payment details, API credentials, or raw Stripe responses are
+published. The deployment artifact includes only website files; tooling,
+dependencies, Git history, and environment files are excluded. Local inventory
+preview files are ignored and excluded from the build. A failed Stripe read or
+configuration mismatch fails the build and leaves the previous deployment live.
+Temporary upload artifacts are removed after successful deployment; the source
+and public deployed website are retained. Public PR checks run without the key
+and cannot deploy the website.
+
+Activation steps after reviewing the code:
+
+1. Store the restricted key as `STRIPE_INVENTORY_KEY` in this repository's
+   **Settings → Secrets and variables → Actions**.
+2. Merge the workflow and select **Settings → Pages → Source: GitHub Actions**.
+   The domain remains `www.fireboltservices.com`.
+3. Run **Publish website and sync kit stock** and confirm its build and deploy
+   jobs succeed. Read `/assets/inventory.json` and check the shop before declaring
+   the sync active. Verify a later scheduled run as well.
+
+This read-only display uses the native Payment Link counter directly. It does
+not maintain a separate inventory ledger or perform payment-triggered side
+effects, so there is no webhook receiver in this workflow. Any future automated
+fulfillment or separate order/inventory ledger still requires the signed event
+handler described below.
 
 Account for any cash sales or orders through other links by reducing this
 link's cap. Its limit is cumulative completed sessions, not remaining stock.
@@ -121,7 +176,7 @@ Orders are handled manually in the Stripe Dashboard. Confirm that the payment
 status is **paid** before handing over or shipping a kit, including orders using
 delayed payment methods. Visiting the shop or a confirmation page is not proof
 of payment. Fulfillment remains manual. Stripe handles this Payment Link's
-20-checkout limit; the static site does not fulfill orders or maintain inventory.
+20-checkout limit; the site periodically mirrors its remaining count for display.
 
 Any future automated fulfillment, inventory updates, or confirmation-email
 workflow needs a signed webhook handler for `checkout.session.completed`,
@@ -141,13 +196,22 @@ From the repository directory:
 
 ```text
 python -m http.server 8765 --bind 127.0.0.1
-node --test tests/shop.test.mjs
+npm ci --ignore-scripts
+npm test
+npm run build
 node --check shop.mjs
 node --check shop/request/request.mjs
 git diff --check
 ```
 
-Open `http://127.0.0.1:8765/shop/`. No build step or new dependencies are needed.
+Open `http://127.0.0.1:8765/shop/`. Node is only used for tests and deployment;
+the published website remains static. For a local preview, an ignored
+`assets/inventory.json` can simulate quantities; it is never copied to the Pages
+artifact. Only a successful Stripe sync writes the production snapshot.
+Test a positive count changing to zero while the page remains open, verify the
+Buy link is removed and the request link becomes primary, and verify a failed
+refresh cannot reopen a known sellout. Do not change production Stripe inventory
+or make purchases to simulate a sellout.
 For `/shop/request/`, verify that continuing without the acknowledgement cannot
 open the form, checking it opens the real form, and unchecking it removes it.
 Do not submit fake requests to the live contact form or make live purchases to

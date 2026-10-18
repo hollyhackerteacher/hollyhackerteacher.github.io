@@ -34,7 +34,13 @@ Payment Link: <https://buy.stripe.com/00wfZhfKq1Pf1sGe5ndZ607>
 The price has `unit_amount: 3000`, `currency: usd`, and `tax_behavior: inclusive`.
 The Payment Link has automatic tax enabled, quantity fixed at one kit, promotion
 codes disabled, required buyer name collection, and a SAINTCON pickup reminder
-before and after payment. Stripe also collects the buyer's email. Payment methods
+before and after payment. Stripe also collects the buyer's email. The required
+**Full name** field is the buyer's IRL name, and a required text custom field
+**Discord handle** (`key: discordhandle`, `optional: false`) collects their handle.
+Both the shop and checkout explain that these details are for arranging pickup.
+View a completed payment in the Stripe Dashboard to find its customer name,
+email, and custom-field response. Keep this contact information in Stripe;
+never add buyer details to the public inventory snapshot or repository. Payment methods
 use Stripe's dynamic configuration. No card details are collected by this site.
 
 The seller confirmed their existing Utah sales-tax registration and business

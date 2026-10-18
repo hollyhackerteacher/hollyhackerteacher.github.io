@@ -3,8 +3,10 @@
 This is a darker, “PCB/circuit” aesthetic similar to the reference style you shared.
 
 ## Deploy (GitHub Pages)
-- Push files to a repo
-- Settings → Pages → Deploy from a branch
+- Push changes to `main`. The GitHub Actions workflow tests and deploys the site,
+  including the latest Stripe stock count. Pages uses **Source: GitHub Actions**.
+- See [SHOP_SETUP.md](SHOP_SETUP.md) for the restricted stock key and activation
+  steps. Credentials are stored in Actions secrets, never in the website.
 
 ## Update gallery
 - Put images in `assets/gallery/`
@@ -14,5 +16,5 @@ This is a darker, “PCB/circuit” aesthetic similar to the reference style you
 - Edit `assets/testimonials.json`
 
 ## Contact form
-- Replace `https://formspree.io/f/your-form-id` in `index.html` with your real Formspree ID.
-- Email reveal: open `script.js` and replace the placeholder email string.
+- The homepage embeds the existing Zoho Contact Us form. The special-run request
+  page reuses that form after a required acknowledgement and adds a referral tag.

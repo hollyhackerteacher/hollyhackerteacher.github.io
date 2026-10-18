@@ -9,7 +9,8 @@ const kit = products[0];
 test('published catalog has the real kit, $30 total, delivery terms, and all three photos', () => {
   assert.equal(kit.priceInCents, 3000);
   assert.equal(kit.currency, 'USD');
-  assert.match(kit.priceNote, /Includes 7.25% sales tax/);
+  assert.match(kit.priceNote, /Sales tax included/);
+  assert.match(kit.priceNote, /No added card fee/);
   assert.match(kit.pickup, /Free pickup at SAINTCON/);
   assert.match(kit.shipping, /after the conference/);
   assert.match(kit.shipping, /Buyer pays shipping/);
@@ -18,9 +19,9 @@ test('published catalog has the real kit, $30 total, delivery terms, and all thr
 });
 
 test('no checkout is offered until an available product has a valid Stripe link', () => {
-  assert.equal(purchaseState(kit).url, null);
-  assert.equal(purchaseState({ ...kit, status: 'available' }).url, null);
-  assert.equal(purchaseState({ ...kit, paymentLink: 'https://buy.stripe.com/Example' }).url, null);
+  assert.equal(purchaseState({ ...kit, status: 'coming-soon' }).url, null);
+  assert.equal(purchaseState({ ...kit, status: 'available', paymentLink: '' }).url, null);
+  assert.equal(purchaseState({ ...kit, status: 'coming-soon', paymentLink: 'https://buy.stripe.com/Example' }).url, null);
 });
 
 test('available products lead directly to Stripe without client-controlled prices', () => {
@@ -58,8 +59,8 @@ test('price formatting keeps $30 whole and preserves cents for future prices', (
   assert.equal(formatPrice(null), 'Price coming soon');
 });
 
-test('7.25% inclusive tax backs out of the $30 total, rather than adding to it', () => {
-  const preTaxCents = Math.round(kit.priceInCents / 1.0725);
-  assert.equal(preTaxCents, 2797);
-  assert.equal(kit.priceInCents - preTaxCents, 203);
+test('the verified 7.45% Provo tax stays inside the $30 total', () => {
+  const preTaxCents = Math.round(kit.priceInCents / 1.0745);
+  assert.equal(preTaxCents, 2792);
+  assert.equal(kit.priceInCents - preTaxCents, 208);
 });

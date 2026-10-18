@@ -6,9 +6,12 @@
       "description": "Bring all six Gummi Bears together in one display. This kit includes the display board, all six Gummi Bear minibadges, and the components you need to assemble it.",
       "priceInCents": 3000,
       "currency": "USD",
-      "priceNote": "Includes 7.25% sales tax. No added card fee.",
-      "status": "coming-soon",
-      "paymentLink": "",
+      "priceNote": "Sales tax included. No added card fee.",
+      "status": "available",
+      "paymentLink": "https://buy.stripe.com/00wfZhfKq1Pf1sGe5ndZ607",
+      "stripeProductId": "prod_firebolt_gummi_bears_display_kit",
+      "stripePriceId": "price_1URzGNHhS4wvEd3Qj7AupyHq",
+      "stripePaymentLinkId": "plink_1URzMuHhS4wvEd3Qzx78u8Zt",
       "features": [
         "Holds six minibadges",
         "Supports clock and traditional minibadge standards",
@@ -18,7 +21,7 @@
         "Includes a 3D printed backer to help protect your shirt",
         "All six Gummi Bear minibadges included"
       ],
-      "pickup": "Free pickup at SAINTCON. Your total is $30.",
+      "pickup": "Free pickup at SAINTCON at Utah Valley Convention Center in Provo, Utah. Your total is $30.",
       "shipping": "Shipping is available after the conference. Buyer pays shipping; contact us to arrange it.",
       "images": [
         {

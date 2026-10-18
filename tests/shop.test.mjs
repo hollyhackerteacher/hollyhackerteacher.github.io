@@ -100,15 +100,23 @@ test('the healthcare interest list is tagged separately from Gummi Bears request
   assert.equal(requestUrl('/shop/healthcare-special-run/'), '/shop/healthcare-special-run/');
 });
 
-test('the Medic badge catalog entry is an interest list with no Stripe or pricing fields', () => {
+test('the Medic badge shows a tax-inclusive estimate and photos without enabling orders', () => {
   const badge = products.find(product => product.id === 'startrek-medic-communicator-badge');
-  assert.equal(badge.name, 'StarTrek Medic Communicator Badge');
+  assert.equal(badge.name, 'Star Trek Medic Communicator Badge');
   assert.equal(badge.status, 'interest-list');
   assert.match(badge.contestNote, /only by winning a contest at the HealthCare Hacking Community/);
   assert.match(badge.contestNote, /special run after the con/);
   assert.match(badge.interestNote, /No order or payment/);
+  assert.match(badge.description, /magnets.*shirt without making holes/);
+  assert.equal(badge.anticipatedPrice, 'Anticipated cost: $10 each, including sales tax.');
+  assert.equal(badge.anticipatedPriceNote, 'Final pricing will be confirmed at the time of the special run.');
+  assert.equal(purchaseState(badge).url, null);
+  assert.equal(badge.images.length, 2);
+  badge.images.forEach(image => assert.ok(existsSync(new URL(`../${image.src}`, import.meta.url))));
   for (const field of ['priceInCents', 'currency', 'paymentLink', 'stripeProductId', 'stripePriceId', 'stripePaymentLinkId']) {
     assert.equal(Object.hasOwn(badge, field), false, field);
   }
-  assert.ok(existsSync(new URL(`..${requestUrl(badge.requestPath)}index.html`, import.meta.url)));
+  const interestPage = readFileSync(new URL(`..${requestUrl(badge.requestPath)}index.html`, import.meta.url), 'utf8');
+  assert.ok(interestPage.includes(badge.anticipatedPrice));
+  assert.ok(interestPage.includes(badge.anticipatedPriceNote));
 });

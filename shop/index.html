@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Shop — Firebolt Services</title>
+  <meta name="description" content="Shop the Gummi Bears MiniBadge Display Board kit with all six minibadges. $30 including sales tax, with free pickup at SAINTCON. Shipping available after the conference at buyer's expense.">
+  <meta name="theme-color" content="#0b0f0c">
+  <link rel="canonical" href="https://www.fireboltservices.com/shop/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <a class="shop-skip" href="#shop">Skip to products</a>
+  <header class="shop-header">
+    <nav class="container shop-header__inner" aria-label="Shop navigation">
+      <a class="brand" href="/">
+        <span class="brand__dot" aria-hidden="true"></span>
+        <span>Firebolt Services <span class="shop-header__label">/ Shop</span></span>
+      </a>
+      <a class="shop-header__contact" href="/#contact">Questions? Get in touch <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+
+  <main id="shop" class="container shop-page">
+    <div class="shop-intro">
+      <p class="shop-intro__eyebrow">PCB art · Minibadges · Display kits</p>
+      <h1>Small boards.<br><span>Big personality.</span></h1>
+      <p class="kicker">Bring a little conference magic home. Explore the Firebolt shop.</p>
+    </div>
+    <h2 class="shop-products-heading">In the shop</h2>
+    <div id="shop-products" class="shop-products" aria-busy="true"></div>
+    <p id="shop-status" class="kicker" role="status">Loading the shop…</p>
+    <noscript><p>Enable JavaScript to browse the shop, or <a href="/#contact">contact us to order</a>.</p></noscript>
+    <aside class="shop-help" aria-labelledby="shop-help-heading">
+      <h2 id="shop-help-heading">Something custom in mind?</h2>
+      <p class="kicker">Let’s talk about a minibadge or PCB art design for your next event.</p>
+      <a class="btn btn--ghost" href="/#contact">Start a conversation <span aria-hidden="true">↗</span></a>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <div class="container shop-footer__inner">
+      <span>© <span id="shop-year">2026</span> Firebolt Services</span>
+      <a href="/">Visit Firebolt Services <span aria-hidden="true">↗</span></a>
+    </div>
+  </footer>
+  <script type="module" src="../shop.mjs"></script>
+</body>
+</html>

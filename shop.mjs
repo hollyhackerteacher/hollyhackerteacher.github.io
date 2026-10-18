@@ -90,8 +90,8 @@ function productPhotos(product) {
   const main = element('img', 'product-photos__main');
   main.src = new URL(images[0].src, import.meta.url).href;
   main.alt = images[0].alt;
-  main.width = 3024;
-  main.height = 4032;
+  main.width = images[0].width || 3024;
+  main.height = images[0].height || 4032;
   main.loading = 'lazy';
   const caption = element('figcaption', 'product-photos__caption', images[0].caption);
   caption.setAttribute('aria-live', 'polite');
@@ -116,6 +116,8 @@ function productPhotos(product) {
       button.addEventListener('click', () => {
         main.src = new URL(image.src, import.meta.url).href;
         main.alt = image.alt;
+        main.width = image.width || 3024;
+        main.height = image.height || 4032;
         caption.textContent = image.caption;
         thumbnails.querySelectorAll('button').forEach(item => item.setAttribute('aria-pressed', 'false'));
         button.setAttribute('aria-pressed', 'true');
@@ -198,6 +200,10 @@ export function renderProduct(product, snapshot = null) {
   details.append(element('p', 'product__description', product.description));
   if (interest) {
     if (product.contestNote) details.append(element('p', 'product__interest-context', product.contestNote));
+    if (product.anticipatedPrice) {
+      details.append(element('p', 'product__estimate', product.anticipatedPrice));
+      if (product.anticipatedPriceNote) details.append(element('p', 'product__price-note', product.anticipatedPriceNote));
+    }
     if (product.features?.length) {
       details.append(element('h4', 'product__subheading', product.featuresHeading || 'Details'));
       const features = element('ul', 'product__features');

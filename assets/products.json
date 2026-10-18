@@ -45,14 +45,31 @@
     },
     {
       "id": "startrek-medic-communicator-badge",
-      "name": "StarTrek Medic Communicator Badge",
+      "name": "Star Trek Medic Communicator Badge",
       "status": "interest-list",
       "eyebrow": "HealthCare Hacking Community contest prize",
-      "description": "A contest-exclusive badge from the HealthCare Hacking Community.",
+      "description": "A great standalone wearable. Includes magnets so you can wear it on your shirt without making holes.",
       "contestNote": "You can get the original only by winning a contest at the HealthCare Hacking Community. We’re collecting names for a special run after the con.",
+      "anticipatedPrice": "Anticipated cost: $10 each, including sales tax.",
+      "anticipatedPriceNote": "Final pricing will be confirmed at the time of the special run.",
       "interestNote": "Get on the list if you want one from the special run. No order or payment is taken here.",
       "requestPath": "/shop/healthcare-special-run/",
-      "images": []
+      "images": [
+        {
+          "src": "assets/shop/medic-badge-shirt.png",
+          "alt": "Blue and silver Star Trek Medic Communicator Badge with an illuminated red medical cross, worn on a green shirt",
+          "caption": "Wear it on your shirt with the included magnets.",
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "src": "assets/shop/medic-badge-glow.jpg",
+          "alt": "Star Trek Medic Communicator Badge with its medical cross glowing red on a workbench",
+          "caption": "The badge illuminated.",
+          "width": 2160,
+          "height": 2880
+        }
+      ]
     }
   ]
 }

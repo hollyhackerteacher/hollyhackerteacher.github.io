@@ -29,6 +29,8 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: '24'
+          # Fetch security releases instead of reusing an older runner cache.
+          check-latest: true
           cache: npm
       - run: npm ci --ignore-scripts
       - run: npm test

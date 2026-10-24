@@ -8,7 +8,7 @@
       "currency": "USD",
       "priceNote": "Sales tax included. No added card fee.",
       "status": "available",
-      "runLimit": 20,
+      "runLimit": 26,
       "requestPath": "/shop/request/",
       "paymentLink": "https://buy.stripe.com/00wfZhfKq1Pf1sGe5ndZ607",
       "stripeProductId": "prod_firebolt_gummi_bears_display_kit",

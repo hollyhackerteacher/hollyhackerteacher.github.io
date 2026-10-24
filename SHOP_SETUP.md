@@ -77,7 +77,7 @@ Change the catalog and Stripe configuration together. Never put secret API keys
 in this repository. Only standard `buy.stripe.com` Payment Links are accepted by
 the current code; custom checkout domains need a corresponding validation change.
 
-## The 20-kit run and special-run requests
+## Kit inventory and special-run requests
 
 On October 18, 2026, the existing Payment Link was updated with
 `restrictions.completed_sessions.limit: 20`. Stripe returned `count: 0` at the
@@ -155,6 +155,16 @@ link's cap. Its limit is cumulative completed sessions, not remaining stock.
 Refunds or failed delayed payments do not automatically restore inventory;
 review them before increasing the limit or reactivating the link. Keep
 `runLimit` in the catalog consistent with the advertised run size.
+
+On October 24, 2026, the owner confirmed 20 kits physically available. With six
+completed checkouts, the cumulative Payment Link cap and catalog `runLimit`
+are 26, leaving `26 - 6 = 20` kits for further purchases. Earlier purchases
+remain in the counter; a restock does not reset or erase sales.
+
+For future restocks, read the current completed-session count and add the
+owner-confirmed remaining stock to calculate the new cumulative cap. Update
+the catalog `runLimit` first, then the Stripe cap, and run the stock deployment.
+Do not enter the remaining stock directly as the cumulative cap.
 
 The request page requires a fresh, initially unchecked acknowledgement before
 it loads the existing Zoho contact form or offers a direct form link. Unchecking

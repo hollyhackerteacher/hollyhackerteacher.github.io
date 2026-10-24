@@ -10,7 +10,7 @@ const kit = products[0];
 test('published catalog has the real kit, $30 total, delivery terms, and all three photos', () => {
   assert.equal(kit.priceInCents, 3000);
   assert.equal(kit.currency, 'USD');
-  assert.equal(kit.runLimit, 20);
+  assert.equal(kit.runLimit, 26);
   assert.equal(kit.requestPath, '/shop/request/');
   assert.match(kit.priceNote, /Sales tax included/);
   assert.match(kit.priceNote, /No added card fee/);

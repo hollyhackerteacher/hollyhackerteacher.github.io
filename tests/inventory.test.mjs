@@ -5,7 +5,8 @@ import { stockFromPaymentLink, createInventory } from '../scripts/sync-inventory
 import { inventoryState, stockMessage, purchaseState, inventoryProducts } from '../shop.mjs';
 
 const { products } = JSON.parse(readFileSync(new URL('../assets/products.json', import.meta.url)));
-const kit = products[0];
+// Keep the original-run scenarios independent of later catalog restocks.
+const kit = { ...products[0], runLimit: 20 };
 const now = Date.parse('2026-10-18T20:00:00Z');
 const source = () => ({
   id: kit.stripePaymentLinkId, livemode: true, active: true,
@@ -38,6 +39,19 @@ test('manual closure and a reduced cap for offline sales are respected', () => {
   link.active = true;
   link.restrictions.completed_sessions = { limit: 17, count: 4 };
   assert.equal(stockFromPaymentLink(kit, link).remaining, 13);
+});
+
+test('the restocked catalog allows 20 more purchases after the six completed sales', () => {
+  const restockedKit = products[0];
+  const link = source();
+  link.restrictions.completed_sessions = { limit: 26, count: 6 };
+  const stock = stockFromPaymentLink(restockedKit, link);
+  assert.deepEqual(stock, { remaining: 20, runLimit: 26, available: true });
+  const result = {
+    schemaVersion: 1, checkedAt: new Date(now).toISOString(),
+    products: { [restockedKit.id]: stock }
+  };
+  assert.equal(stockMessage(restockedKit, inventoryState(restockedKit, result, now)), '20 kits left');
 });
 
 test('unbounded, invalid and mismatched links cannot publish misleading stock', () => {

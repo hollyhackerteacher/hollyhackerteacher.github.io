@@ -3,7 +3,7 @@
     {
       "id": "gummi-bears-display-kit",
       "name": "Gummi Bears MiniBadge Display Board",
-      "description": "Bring all six Gummi Bears together in one display. This kit includes the display board, all six Gummi Bear minibadges, and the components you need to assemble it.",
+      "description": "Bring all six Gummi Bears together in one display. This kit includes the display board, all six Gummi Bear minibadges, and the components you need to assemble it. Bring 2 AA batteries if you plan to wear your kit during the con. Parts cost more than planned, so batteries are not included.",
       "priceInCents": 3000,
       "currency": "USD",
       "priceNote": "Sales tax included. No added card fee.",
@@ -17,13 +17,13 @@
       "features": [
         "Holds six minibadges",
         "Supports clock and traditional minibadge standards",
-        "Runs on AA batteries",
+        "Runs on 2 AA batteries (not included)",
         "Includes all assembly components, with the ATtiny microcontroller already soldered on",
         "Lanyard hole for wearing your display",
         "Includes a 3D printed backer to help protect your shirt",
         "All six Gummi Bear minibadges included"
       ],
-      "pickup": "Free pickup at SAINTCON at Utah Valley Convention Center in Provo, Utah. Your total is $30. At checkout, provide your IRL name, Discord handle, and email address so we can arrange pickup.",
+      "pickup": "Free pickup at SAINTCON at Utah Valley Convention Center in Provo, Utah. I'll be working at the Healthcare Hacking Village most of the time this year, and that's where I'll have the boards for pickup. Look for Hollyhacker and my trademark MiniBadge Tophat! I won't have room to carry the display boards around the con, so they'll stay in the Healthcare Hacking Community where I'm working this year. Your total is $30. At checkout, provide your IRL name, Discord handle, and email address so we can arrange pickup.",
       "shipping": "Shipping is available after the conference. Buyer pays shipping; contact us to arrange it.",
       "images": [
         {

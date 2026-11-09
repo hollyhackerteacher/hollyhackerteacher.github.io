@@ -39,6 +39,8 @@ async function main() {
   if (!key?.startsWith('rk_live_')) throw new Error('A dedicated live restricted key is required.');
   const client = new Stripe(key, { maxNetworkRetries: 2, timeout: 20_000 });
   const catalog = JSON.parse(await readFile(new URL('../assets/products.json', import.meta.url), 'utf8'));
+  const laptops = JSON.parse(await readFile(new URL('../assets/laptops.json', import.meta.url), 'utf8'));
+  catalog.products.push(...laptops.products);
   const inventory = await createInventory(catalog, client);
   await writeFile(new URL('../_site/assets/inventory.json', import.meta.url), `${JSON.stringify(inventory, null, 2)}\n`);
   console.log('Stock snapshot updated. No customer or payment details were published.');

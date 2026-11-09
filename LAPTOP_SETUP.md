@@ -9,6 +9,16 @@ The Latitude 5520 CPU model in the sheet appears truncated (`i7-118G7`);
 the owner confirmed listing it as i7-1185G7. The first MSI row's weight differs
 from the others, and its sheet value is shown as supplied.
 
+## Battery reports
+
+The sale sheet has two blank input columns for stock #21–#36: **Battery Full
+Charge Capacity (Wh)** and **Battery Health (%)**. Enter numbers only (for
+example, `42.5` and `84`, not `42.5 Wh` or `84%`). If Windows reports capacity
+in mWh, divide by 1,000 to enter Wh. Leave either field blank until measured;
+the public listing says "Report pending" for that field. After entering results,
+run `python scripts/build-laptop-catalog.py`, review the changed catalog, and
+publish the site. Do not infer a battery value from the model reference photos.
+
 ## Stripe setup
 
 Each stock number has a separate live Stripe product, one-time USD price, and
@@ -24,8 +34,8 @@ at 6:30 p.m. outside Room 402 at Ensign College, 95 N 300 W, Salt Lake City.
 The owner confirmed a specific sales-tax exemption for these laptops and directed
 that no tax be added; the listed Suggested List price is the checkout total.
 The owner also confirmed Windows 11, factory charger, no pre-purchase inspection,
-no seller warranty, and a 3% fee on change-of-mind refunds requested at pickup
-before taking the laptop. The site does not charge cards directly.
+no seller warranty, and final sale with no refunds or returns, including at pickup.
+The site does not charge cards directly.
 
 The existing five-minute GitHub Actions workflow checks Stripe's native
 completed-session counters. `sync-inventory.mjs` now reads the laptop catalog

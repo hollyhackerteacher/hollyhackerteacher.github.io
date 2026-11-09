@@ -89,6 +89,8 @@ function card(product) {
     detail('Storage', product.storage),
     detail('Display', product.screen),
     detail('Graphics', product.graphics),
+    detail('Battery capacity', product.batteryCapacityWh == null ? 'Report pending' : `${product.batteryCapacityWh.toLocaleString('en-US', { maximumFractionDigits: 1 })} Wh`),
+    detail('Battery health', product.batteryHealthPercent == null ? 'Report pending' : `${product.batteryHealthPercent.toLocaleString('en-US', { maximumFractionDigits: 1 })}%`),
     detail('Weight', product.weight),
     detail('Dimensions', `${product.dimensions} in`)
   );

@@ -1,5 +1,6 @@
 """Convert the supplied sale sheet and verified Stripe links into a laptop catalog."""
 import json
+import math
 from pathlib import Path
 import openpyxl
 
@@ -18,10 +19,22 @@ photos = {
 }
 
 products = []
+
+def optional_battery_number(value, stock, field, maximum=None):
+    if value is None:
+        return None
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+        raise ValueError(f'Stock #{stock}: {field} must be a number or blank')
+    if value <= 0 or (maximum is not None and value > maximum):
+        raise ValueError(f'Stock #{stock}: {field} is out of range')
+    return round(float(value), 1)
+
 for row in sheet.iter_rows(min_row=2, max_row=17, values_only=True):
     item = dict(zip(headers, row))
     stock = int(item['Stock #'])
     checkout = stripe_links[str(stock)]
+    battery_capacity = optional_battery_number(item.get('Battery Full Charge Capacity (Wh)'), stock, 'battery capacity')
+    battery_health = optional_battery_number(item.get('Battery Health (%)'), stock, 'battery health', 100)
     cpu = item['CPU']
     if item['Model'] == 'Dell Latitude 5520':
         cpu = '11th Gen Intel Core i7-1185G7 @ 3.00 GHz'
@@ -40,6 +53,8 @@ for row in sheet.iter_rows(min_row=2, max_row=17, values_only=True):
         'graphics': item['Graphics'],
         'weight': item['Weight'],
         'dimensions': item['Dimension Inches'].replace(' � ', ' × ').replace('�', '–'),
+        'batteryCapacityWh': battery_capacity,
+        'batteryHealthPercent': battery_health,
         'grade': item['Condition Grade'],
         'condition': item['Condition'],
         'priceInCents': int(item['Suggested List'] * 100),

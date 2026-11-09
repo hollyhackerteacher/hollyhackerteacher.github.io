@@ -219,7 +219,10 @@
       "stripeProductId": "prod_VbCeS5GNV5K4zX",
       "stripePriceId": "price_1Ua0EjHhS4wvEd3Q9cv07ZUq",
       "photos": [
-        "precision-7560-front.jpg"
+        "precision-7560-front.png",
+        "precision-7560-rear.png",
+        "precision-7560-left.png",
+        "precision-7560-right.png"
       ]
     },
     {
@@ -247,6 +250,8 @@
       "stripePriceId": "price_1Ua0EtHhS4wvEd3Q80xuoeMG",
       "photos": [
         "precision-7670-front.png",
+        "precision-7670-lid.png",
+        "precision-7670-left.png",
         "precision-7670-right.png"
       ]
     },

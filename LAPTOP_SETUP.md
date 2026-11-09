@@ -40,10 +40,10 @@ reactivate or replace its link before offering it again.
 
 Photos show the model, not the actual used machine. Source image URLs are in
 `scripts/prepare-laptop-assets.py`. The Latitude 5520 front and side-port views,
-Precision 7550 front/closed composite, Precision 7670 front and port view, and
-MSI Prestige 14 front/closed/left/right views come from Dell and MSI assets.
-The Precision 7560 front/closed composite is a Dell product render hosted by
-Laptop88. Each model uses the same reference views across its individual
+Precision 7550 front/closed composite, Precision 7670 front/lid/left/right views,
+and MSI Prestige 14 front/closed/left/right views come from Dell and MSI assets.
+The Precision 7560 front, rear/lid, left, and right views are official Dell
+gallery images. Each model uses the same reference views across its individual
 stock-number cards. Buyers should request photos of the actual unit to inspect
 cosmetic wear.
 

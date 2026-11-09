@@ -12,8 +12,8 @@ headers = [cell.value for cell in sheet[1]]
 photos = {
     'Dell Latitude 5520': ['latitude-5520-front.png', 'latitude-5520-ports.jpg'],
     'Dell Precision 7550': ['precision-7550-front.png'],
-    'Dell Precision 7560': ['precision-7560-front.jpg'],
-    'Dell Precision 7670': ['precision-7670-front.png', 'precision-7670-right.png'],
+    'Dell Precision 7560': ['precision-7560-front.png', 'precision-7560-rear.png', 'precision-7560-left.png', 'precision-7560-right.png'],
+    'Dell Precision 7670': ['precision-7670-front.png', 'precision-7670-lid.png', 'precision-7670-left.png', 'precision-7670-right.png'],
     'MSI Prestige 14 AI Studio': ['prestige-14-front.png', 'prestige-14-closed.png', 'prestige-14-left.png', 'prestige-14-right.png'],
 }
 

@@ -3,6 +3,7 @@ const note = globalThis.document?.querySelector('#availability-note');
 let products = [];
 let inventory = null;
 let filter = 'all';
+const PURCHASING_PAUSED = true;
 
 function node(tag, className, text) {
   const element = document.createElement(tag);
@@ -22,6 +23,7 @@ export function checkoutUrl(value) {
 }
 
 export function saleState(product, snapshot) {
+  if (PURCHASING_PAUSED) return { label: 'Purchasing paused', available: false };
   const link = checkoutUrl(product.paymentLink);
   const stock = snapshot?.schemaVersion === 1 ? snapshot.products?.[product.id] : null;
   if (stock?.remaining === 0 || stock?.available === false) return { label: 'Sold out', available: false };
@@ -114,7 +116,7 @@ function render() {
   grid.replaceChildren(...products.filter(p => filter === 'all' || p.model.startsWith(filter)).map(card));
   grid.setAttribute('aria-busy', 'false');
   const live = products.filter(p => saleState(p, inventory).available).length;
-  note.textContent = live ? `${live} laptops currently available for checkout. One of each stock number.` : 'All laptops are sold out. Contact us with a stock number if you have a question.';
+  note.textContent = PURCHASING_PAUSED ? 'Purchasing is paused while we finalize the sale details. Listings remain available to review.' : live ? `${live} laptops currently available for checkout. One of each stock number.` : 'All laptops are sold out. Contact us with a stock number if you have a question.';
 }
 
 if (grid) document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => {

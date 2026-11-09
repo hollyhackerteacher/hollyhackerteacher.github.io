@@ -9,16 +9,23 @@ export function stockFromPaymentLink(product, link) {
   const items = link.line_items;
   const item = items?.data?.[0];
   const price = item?.price;
-  if (link.id !== product.stripePaymentLinkId || link.livemode !== true ||
-      typeof link.active !== 'boolean' || !Number.isSafeInteger(product.runLimit) || product.runLimit < 1 ||
-      !Number.isSafeInteger(restriction?.limit) || restriction.limit < 1 || restriction.limit > product.runLimit ||
-      !Number.isSafeInteger(restriction?.count) || restriction.count < 0 ||
-      items?.has_more !== false || items.data.length !== 1 || item.quantity !== 1 ||
-      item.adjustable_quantity?.enabled !== false || price?.id !== product.stripePriceId ||
-      price.product !== product.stripeProductId || price.currency !== product.currency.toLowerCase() ||
-      price.unit_amount !== product.priceInCents) {
-    throw new Error('Payment Link inventory configuration does not match the catalog.');
-  }
+  const checks = {
+    'link ID': link.id === product.stripePaymentLinkId,
+    'live mode': link.livemode === true,
+    'active flag': typeof link.active === 'boolean',
+    'catalog run limit': Number.isSafeInteger(product.runLimit) && product.runLimit >= 1,
+    'completed-session limit': Number.isSafeInteger(restriction?.limit) && restriction.limit >= 1 && restriction.limit <= product.runLimit,
+    'completed-session count': Number.isSafeInteger(restriction?.count) && restriction.count >= 0,
+    'expanded line items': items?.has_more === false && items.data.length === 1,
+    'line item quantity': item?.quantity === 1,
+    'adjustable quantity': item?.adjustable_quantity?.enabled === false,
+    'price ID': price?.id === product.stripePriceId,
+    'product ID': price?.product === product.stripeProductId,
+    'currency': price?.currency === product.currency.toLowerCase(),
+    'unit amount': price?.unit_amount === product.priceInCents,
+  };
+  const failed = Object.entries(checks).find(([, valid]) => !valid)?.[0];
+  if (failed) throw new Error(`Payment Link inventory mismatch for ${product.id}: ${failed}`);
   const remaining = Math.max(0, restriction.limit - restriction.count);
   return { remaining, runLimit: product.runLimit, available: link.active && remaining > 0 };
 }
@@ -47,9 +54,11 @@ async function main() {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main().catch(() => {
+  main().catch((error) => {
     // Stripe errors can include request details: never print the key or raw error.
-    console.error('Stock sync failed. Check the restricted key and Payment Link configuration. The previous deployment is unchanged.');
+    const safeMessage = /^Payment Link inventory mismatch for laptop-\d+: [a-z -]+$/.test(error?.message || '')
+      ? error.message : 'Check the restricted key and Payment Link configuration.';
+    console.error(`Stock sync failed. ${safeMessage} The previous deployment is unchanged.`);
     process.exitCode = 1;
   });
 }

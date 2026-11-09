@@ -32,6 +32,12 @@ test('stock comes from the native limit minus completed sessions, bounded at zer
   assert.equal(stockFromPaymentLink(kit, link).remaining, 0);
 });
 
+test('Stripe may omit the disabled adjustable-quantity field on line items', () => {
+  const link = source();
+  delete link.line_items.data[0].adjustable_quantity;
+  assert.equal(stockFromPaymentLink(kit, link).remaining, 20);
+});
+
 test('manual closure and a reduced cap for offline sales are respected', () => {
   const link = source();
   link.active = false;

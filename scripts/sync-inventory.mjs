@@ -18,7 +18,7 @@ export function stockFromPaymentLink(product, link) {
     'completed-session count': Number.isSafeInteger(restriction?.count) && restriction.count >= 0,
     'expanded line items': items?.has_more === false && items.data.length === 1,
     'line item quantity': item?.quantity === 1,
-    'adjustable quantity': item?.adjustable_quantity?.enabled === false,
+    'adjustable quantity': item?.adjustable_quantity?.enabled !== true,
     'price ID': price?.id === product.stripePriceId,
     'product ID': price?.product === product.stripeProductId,
     'currency': price?.currency === product.currency.toLowerCase(),

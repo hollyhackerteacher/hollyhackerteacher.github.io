@@ -81,7 +81,17 @@ function card(product) {
   body.append(node('p', 'condition', `Grade ${product.grade} · ${product.condition}`));
   body.append(node('p', 'included', 'Factory charger · Windows 11 installed'));
   const specs = node('dl', 'specs');
-  specs.append(detail('Processor', product.cpu), detail('Memory', product.ram), detail('Storage', product.storage), detail('Display', product.screen), detail('Graphics', product.graphics));
+  specs.append(
+    detail('Service tag', product.serial),
+    detail('Processor', product.cpu),
+    detail('Cores / threads', product.coresThreads),
+    detail('Memory', product.ram),
+    detail('Storage', product.storage),
+    detail('Display', product.screen),
+    detail('Graphics', product.graphics),
+    detail('Weight', product.weight),
+    detail('Dimensions', `${product.dimensions} in`)
+  );
   body.append(specs);
   const price = node('div', 'purchase');
   price.append(node('strong', 'price', new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(product.priceInCents / 100)));
@@ -102,7 +112,7 @@ function render() {
   grid.replaceChildren(...products.filter(p => filter === 'all' || p.model.startsWith(filter)).map(card));
   grid.setAttribute('aria-busy', 'false');
   const live = products.filter(p => saleState(p, inventory).available).length;
-  note.textContent = live ? `${live} laptops currently available for checkout. One of each stock number.` : 'Checkout links are being prepared. Contact us with a stock number if you have a question.';
+  note.textContent = live ? `${live} laptops currently available for checkout. One of each stock number.` : 'All laptops are sold out. Contact us with a stock number if you have a question.';
 }
 
 if (grid) document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => {

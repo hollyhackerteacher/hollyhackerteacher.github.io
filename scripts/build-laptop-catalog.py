@@ -1,10 +1,11 @@
-"""Convert the supplied sale sheet into a public, serial-free laptop catalog."""
+"""Convert the supplied sale sheet and verified Stripe links into a laptop catalog."""
 import json
 from pathlib import Path
 import openpyxl
 
 source = Path(r'C:\Users\admin\Downloads\Laptop Sale Sheet.xlsx')
 out = Path(__file__).resolve().parents[1] / 'assets' / 'laptops.json'
+stripe_links = json.loads((Path(__file__).with_name('laptop-stripe-links.json')).read_text(encoding='utf-8'))
 sheet = openpyxl.load_workbook(source, data_only=True).active
 headers = [cell.value for cell in sheet[1]]
 
@@ -20,30 +21,32 @@ products = []
 for row in sheet.iter_rows(min_row=2, max_row=17, values_only=True):
     item = dict(zip(headers, row))
     stock = int(item['Stock #'])
+    checkout = stripe_links[str(stock)]
     cpu = item['CPU']
     if item['Model'] == 'Dell Latitude 5520':
-        cpu = '11th Gen Intel Core i7 (exact model to verify)'
+        cpu = '11th Gen Intel Core i7-1185G7 @ 3.00 GHz'
     else:
         cpu = cpu.replace('Intel(R)', 'Intel').replace('Core(TM)', 'Core').replace(' CPU', '')
     products.append({
         'id': f'laptop-{stock}',
         'stockNumber': stock,
+        'serial': item['Serial'],
         'model': item['Model'],
         'cpu': cpu,
+        'coresThreads': item['CPU cores / Threads'],
         'screen': item['Screen Size'],
         'ram': item['RAM'],
         'storage': item['Storage'],
-        'graphics': item['Graphics'].split(' - ')[0].strip(),
+        'graphics': item['Graphics'],
+        'weight': item['Weight'],
+        'dimensions': item['Dimension Inches'].replace(' � ', ' × ').replace('�', '–'),
         'grade': item['Condition Grade'],
         'condition': item['Condition'],
         'priceInCents': int(item['Suggested List'] * 100),
         'currency': 'USD',
         'quantity': 1,
         'runLimit': 1,
-        'paymentLink': None,
-        'stripeProductId': None,
-        'stripePriceId': None,
-        'stripePaymentLinkId': None,
+        **checkout,
         'photos': photos[item['Model']],
     })
 

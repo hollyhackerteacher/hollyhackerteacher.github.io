@@ -3,27 +3,29 @@
 The page at `/shop/laptops/` reads `assets/laptops.json`. It lists the 16 stock
 numbers in the owner's sale sheet, #21–#36, using **Suggested List** prices as
 the owner selected. Each stock number identifies one physical used machine.
-Serial numbers remain out of the public site. The Latitude 5520 CPU model in the
-sheet appears truncated (`i7-118G7`), so the page says only 11th Gen Core i7
-until the exact chip is verified. The first MSI row's weight differs from the
-others; weights are omitted from the page.
+The owner requested full details for each machine, including service tag,
+cores/threads, the complete graphics description, weight, and dimensions.
+The Latitude 5520 CPU model in the sheet appears truncated (`i7-118G7`);
+the owner confirmed listing it as i7-1185G7. The first MSI row's weight differs
+from the others, and its sheet value is shown as supplied.
 
 ## Stripe setup
 
-Create a separate live Stripe product, one-time USD price, and Payment Link for
-each stock number. Name each product with the model and stock number, include
-RAM, storage, GPU, grade, and the individual condition note in its description,
-and keep the serial in private Stripe metadata if useful for fulfillment. Each
-link must have one line item with fixed quantity one, adjustable quantity off,
-and `restrictions.completed_sessions.limit: 1`. State local pickup Thursday
+Each stock number has a separate live Stripe product, one-time USD price, and
+Payment Link. The exact Stripe IDs and URLs are in
+`scripts/laptop-stripe-links.json`; the catalog generator merges them with the
+sale sheet. Each product is named with its model and stock number and has its
+individual service tag, specifications, graphics, grade, and condition in the
+description. Each link has one line item with fixed quantity one, adjustable
+quantity off, and `restrictions.completed_sessions.limit: 1`. Stripe Dashboard
+showed the links active, unused, and limited to 0 of 1 payments. It collects
+the customer's name and phone number and states local pickup Thursday
 at 6:30 p.m. outside Room 402 at Ensign College, 95 N 300 W, Salt Lake City.
 The owner confirmed a specific sales-tax exemption for these laptops and directed
 that no tax be added; the listed Suggested List price is the checkout total.
 The owner also confirmed Windows 11, factory charger, no pre-purchase inspection,
 no seller warranty, and a 3% fee on change-of-mind refunds requested at pickup
-before taking the laptop. Add the IDs and link URL to the matching object in
-`assets/laptops.json`. Verify every Stripe price matches `priceInCents` and each
-link is live before publishing. The site does not charge cards directly.
+before taking the laptop. The site does not charge cards directly.
 
 The existing five-minute GitHub Actions workflow checks Stripe's native
 completed-session counters. `sync-inventory.mjs` now reads the laptop catalog
@@ -45,5 +47,9 @@ Laptop88. Each model uses the same reference views across its individual
 stock-number cards. Buyers should request photos of the actual unit to inspect
 cosmetic wear.
 
-The Stripe connection must be reauthenticated before products and Payment Links
-can be created and verified. Do not publish checkout buttons before that step.
+The Stripe connector was unavailable, so the products and links were created
+and verified in the owner's authenticated Stripe Dashboard. The product image
+upload through browser automation was blocked by Chrome's file URL permission;
+the site shows the model reference imagery while Stripe checkout uses the text
+description. The Stripe connector must be reauthenticated before future API
+changes through that connector.

@@ -3,7 +3,6 @@ const note = globalThis.document?.querySelector('#availability-note');
 let products = [];
 let inventory = null;
 let filter = 'all';
-const PURCHASING_PAUSED = true;
 
 function node(tag, className, text) {
   const element = document.createElement(tag);
@@ -23,7 +22,8 @@ export function checkoutUrl(value) {
 }
 
 export function saleState(product, snapshot) {
-  if (PURCHASING_PAUSED) return { label: 'Purchasing paused', available: false };
+  if (product.saleStatus !== 'available') return { label: 'Not yet for sale', available: false };
+  if (!Number.isSafeInteger(product.priceInCents) || product.priceInCents <= 0) return { label: 'Checkout coming soon', available: false };
   const link = checkoutUrl(product.paymentLink);
   const stock = snapshot?.schemaVersion === 1 ? snapshot.products?.[product.id] : null;
   if (stock?.remaining === 0 || stock?.available === false) return { label: 'Sold out', available: false };
@@ -78,7 +78,7 @@ function card(product) {
   article.append(photoGallery(product));
   const body = node('div', 'laptop-card__body');
   const state = saleState(product, inventory);
-  body.append(node('p', 'stock-tag', `STOCK #${product.stockNumber}  ·  ${state.label === 'Sold out' ? 'SOLD OUT' : 'ONE OF ONE'}`));
+  body.append(node('p', 'stock-tag', `STOCK #${product.stockNumber}  ·  ${product.saleStatus === 'available' ? (state.label === 'Sold out' ? 'SOLD OUT' : 'ONE OF ONE') : 'COMING SOON'}`));
   body.append(node('h3', null, product.model));
   body.append(node('p', 'condition', `Grade ${product.grade} · ${product.condition}`));
   body.append(node('p', 'included', 'Factory charger · Windows 11 installed'));
@@ -93,12 +93,15 @@ function card(product) {
     detail('Graphics', product.graphics),
     detail('Battery capacity', product.batteryCapacityWh == null ? 'Report pending' : `${product.batteryCapacityWh.toLocaleString('en-US', { maximumFractionDigits: 1 })} Wh`),
     detail('Battery health', product.batteryHealthPercent == null ? 'Report pending' : `${product.batteryHealthPercent.toLocaleString('en-US', { maximumFractionDigits: 1 })}%`),
+    ...(product.batteryDetails ? [detail('Battery report', product.batteryDetails)] : []),
     detail('Weight', product.weight),
     detail('Dimensions', `${product.dimensions} in`)
   );
   body.append(specs);
   const price = node('div', 'purchase');
-  price.append(node('strong', 'price', new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(product.priceInCents / 100)));
+  if (product.saleStatus === 'available' && Number.isSafeInteger(product.priceInCents)) {
+    price.append(node('strong', 'price', new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(product.priceInCents / 100)));
+  }
   if (state.available) {
     const buy = node('a', 'buy-button', state.label + ' ↗');
     buy.href = state.link;
@@ -113,10 +116,11 @@ function card(product) {
 }
 
 function render() {
-  grid.replaceChildren(...products.filter(p => filter === 'all' || p.model.startsWith(filter)).map(card));
+  grid.replaceChildren(...products.filter(p => filter === 'all' || p.model.startsWith(filter))
+    .sort((a, b) => Number(b.saleStatus === 'available') - Number(a.saleStatus === 'available') || a.stockNumber - b.stockNumber).map(card));
   grid.setAttribute('aria-busy', 'false');
   const live = products.filter(p => saleState(p, inventory).available).length;
-  note.textContent = PURCHASING_PAUSED ? 'Purchasing is paused while we finalize the sale details. Listings remain available to review.' : live ? `${live} laptops currently available for checkout. One of each stock number.` : 'All laptops are sold out. Contact us with a stock number if you have a question.';
+  note.textContent = live ? `${live} laptops currently available for checkout. One of each stock number. Other machines are not yet for sale.` : 'No laptops are currently available for checkout. Contact us with a stock number if you have a question.';
 }
 
 if (grid) document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => {

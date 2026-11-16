@@ -1,8 +1,10 @@
 # Used laptop shop
 
 The page at `/shop/laptops/` reads `assets/laptops.json`. It lists the 16 stock
-numbers in the owner's sale sheet, #21–#36, using **Suggested List** prices as
-the owner selected. Each stock number identifies one physical used machine.
+numbers in `Laptop Sale Sheet (1).xlsx`, #21–#36. Only #33–#36 are currently
+for sale at the sheet's **Sale Price** amounts ($1,100, $900, $1,100, $1,100).
+The other 12 have no public price or checkout URL until released. Their Stripe
+links stay deactivated. Each stock number identifies one physical used machine.
 The owner requested full details for each machine, including service tag,
 cores/threads, the complete graphics description, weight, and dimensions.
 The Latitude 5520 CPU model in the sheet appears truncated (`i7-118G7`);
@@ -11,24 +13,20 @@ from the others, and its sheet value is shown as supplied.
 
 ## Battery reports
 
-The sale sheet has two blank input columns for stock #21–#36: **Battery Full
-Charge Capacity (Wh)** and **Battery Health (%)**. Enter numbers only (for
-example, `42.5` and `84`, not `42.5 Wh` or `84%`). If Windows reports capacity
-in mWh, divide by 1,000 to enter Wh. Leave either field blank until measured;
-the public listing says "Report pending" for that field. After entering results,
-run `python scripts/build-laptop-catalog.py`, review the changed catalog, and
-publish the site. Do not infer a battery value from the model reference photos.
+The current sheet supplies **Battery Details** for #33–#36, including measured
+health percentages and estimated hours of use. The public cards show that text
+and the health percentage. Full-charge capacity in Wh is still unreported, so
+that field says "Report pending". Do not infer a capacity from the model photos.
 
 ## Stripe setup
 
-Each stock number has a separate live Stripe product, one-time USD price, and
+Each stock number has a separate Stripe product, one-time USD price, and
 Payment Link. The exact Stripe IDs and URLs are in
-`scripts/laptop-stripe-links.json`; the catalog generator merges them with the
-sale sheet. Each product is named with its model and stock number and has its
+`scripts/laptop-stripe-links.json`; the catalog generator exposes only those
+for #33–#36. Each product is named with its model and stock number and has its
 individual service tag, specifications, graphics, grade, and condition in the
 description. Each link has one line item with fixed quantity one, adjustable
-quantity off, and `restrictions.completed_sessions.limit: 1`. Stripe Dashboard
-showed the links active, unused, and limited to 0 of 1 payments. It collects
+quantity off, and `restrictions.completed_sessions.limit: 1`. It collects
 the customer's name and phone number and states local pickup Thursday
 at 6:30 p.m. outside Room 402 at Ensign College, 95 N 300 W, Salt Lake City.
 The owner confirmed a specific sales-tax exemption for these laptops and directed

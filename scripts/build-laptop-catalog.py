@@ -49,7 +49,6 @@ for row in rows[1:]:
     stock = int(item['Stock #'])
     listed = stock in (33, 34, 35, 36)
     battery_details = item.get('Battery Details') or None
-    battery_match = re.search(r'Battery health:\s*(\d+(?:\.\d+)?)%', battery_details or '')
     cpu = item['CPU']
     if item['Model'] == 'Dell Latitude 5520':
         cpu = '11th Gen Intel Core i7-1185G7 @ 3.00 GHz'
@@ -72,8 +71,6 @@ for row in rows[1:]:
         'graphics': item['Graphics'],
         'weight': item['Weight'],
         'dimensions': item['Dimension Inches'].replace(' � ', ' × ').replace('�', '–'),
-        'batteryCapacityWh': None,
-        'batteryHealthPercent': float(battery_match.group(1)) if battery_match else None,
         'batteryDetails': battery_details,
         'grade': item['Condition Grade'],
         'condition': condition,

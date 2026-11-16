@@ -1,3 +1,5 @@
+import { upcomingPickupSlots, pickupCheckoutUrl } from './pickup.mjs';
+
 const grid = globalThis.document?.querySelector('#laptop-grid');
 const note = globalThis.document?.querySelector('#availability-note');
 let products = [];
@@ -91,9 +93,7 @@ function card(product) {
     detail('Storage', product.storage),
     detail('Display', product.screen),
     detail('Graphics', product.graphics),
-    detail('Battery capacity', product.batteryCapacityWh == null ? 'Report pending' : `${product.batteryCapacityWh.toLocaleString('en-US', { maximumFractionDigits: 1 })} Wh`),
-    detail('Battery health', product.batteryHealthPercent == null ? 'Report pending' : `${product.batteryHealthPercent.toLocaleString('en-US', { maximumFractionDigits: 1 })}%`),
-    ...(product.batteryDetails ? [detail('Battery report', product.batteryDetails)] : []),
+    ...(product.batteryDetails ? [detail('Battery details', product.batteryDetails)] : []),
     detail('Weight', product.weight),
     detail('Dimensions', `${product.dimensions} in`)
   );
@@ -103,10 +103,34 @@ function card(product) {
     price.append(node('strong', 'price', new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(product.priceInCents / 100)));
   }
   if (state.available) {
-    const buy = node('a', 'buy-button', state.label + ' ↗');
-    buy.href = state.link;
-    buy.rel = 'noopener noreferrer';
-    price.append(buy);
+    const form = node('form', 'pickup-form');
+    const label = node('label', null, 'Choose your pickup date · 7 p.m.');
+    const select = node('select');
+    select.id = `pickup-${product.stockNumber}`;
+    select.required = true;
+    label.htmlFor = select.id;
+    const placeholder = node('option', null, 'Select Tuesday or Thursday');
+    placeholder.value = '';
+    select.append(placeholder);
+    upcomingPickupSlots().forEach(slot => {
+      const option = node('option', null, slot.label);
+      option.value = slot.value;
+      select.append(option);
+    });
+    const buy = node('button', 'buy-button', 'Continue to secure checkout ↗');
+    buy.type = 'submit';
+    form.append(label, select, buy);
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const url = pickupCheckoutUrl(state.link, product.stockNumber, select.value);
+      if (url) globalThis.location.assign(url);
+      else {
+        select.setCustomValidity('This pickup date is no longer available. Choose a later date.');
+        select.reportValidity();
+      }
+    });
+    select.addEventListener('change', () => select.setCustomValidity(''));
+    price.append(form);
   } else {
     price.append(node('span', 'buy-button buy-button--disabled', state.label));
   }
@@ -120,7 +144,7 @@ function render() {
     .sort((a, b) => Number(b.saleStatus === 'available') - Number(a.saleStatus === 'available') || a.stockNumber - b.stockNumber).map(card));
   grid.setAttribute('aria-busy', 'false');
   const live = products.filter(p => saleState(p, inventory).available).length;
-  note.textContent = live ? `${live} laptops currently available for checkout. One of each stock number. Other machines are not yet for sale.` : 'No laptops are currently available for checkout. Contact us with a stock number if you have a question.';
+  note.textContent = live ? `${live} laptops currently available for checkout. One of each stock number. Other machines are not yet for sale.` : 'No laptops are currently available for checkout. Additional stock will appear here when it is ready.';
 }
 
 if (grid) document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => {
@@ -147,5 +171,5 @@ if (grid) try {
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
 } catch {
   grid.setAttribute('aria-busy', 'false');
-  note.textContent = 'The laptop catalog could not load. Please try again later or contact us.';
+  note.textContent = 'The laptop catalog could not load. Please try again later.';
 }

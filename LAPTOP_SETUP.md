@@ -5,6 +5,8 @@ numbers in `Laptop Sale Sheet (1).xlsx`, #21–#36. Only #33–#36 are currently
 for sale at the sheet's **Sale Price** amounts ($1,100, $900, $1,100, $1,100).
 The other 12 have no public price or checkout URL until released. Their Stripe
 links stay deactivated. Each stock number identifies one physical used machine.
+Update the older deactivated Stripe product and link text to the current pickup
+and refund policy before releasing any of those 12 machines.
 The revised Stripe default prices for #21–#26 are $350, $300, $275, $375,
 $350, and $350 respectively. Their older deactivated Payment Links still point
 to the previous prices. Create replacement one-payment links at the new prices
@@ -20,25 +22,34 @@ from the others, and its sheet value is shown as supplied.
 
 The current sheet supplies **Battery Details** for #33–#36, including measured
 health percentages and estimated hours of use. The public cards show that text
-and the health percentage. Full-charge capacity in Wh is still unreported, so
-that field says "Report pending". Do not infer a capacity from the model photos.
+exactly as supplied in the spreadsheet. No battery wattage or placeholder is shown.
 
 ## Stripe setup
 
 Each stock number has a separate Stripe product, one-time USD price, and
 Payment Link. The exact Stripe IDs and URLs are in
 `scripts/laptop-stripe-links.json`; the catalog generator exposes only those
-for #33–#36. Each product is named with its model and stock number and has its
-individual service tag, specifications, graphics, grade, and condition in the
-description. Each link has one line item with fixed quantity one, adjustable
+for #33–#36. Each active product is named with its model and stock number and
+has its individual service tag, specifications, graphics, grade, and condition
+in the description. Each link has one line item with fixed quantity one, adjustable
 quantity off, and `restrictions.completed_sessions.limit: 1`. It collects
-the customer's name and phone number and states local pickup Thursday
-at 6:30 p.m. outside Room 402 at Ensign College, 95 N 300 W, Salt Lake City.
+the customer's name and phone number. The website requires a Tuesday or
+Thursday at 7 p.m., beginning November 19, 2026, with at least 24 hours of
+lead time. It sends the chosen date to Stripe in the Payment Link
+`client_reference_id` as `laptop-<stock>-pickup-<YYYYMMDD>`.
 The owner confirmed a specific sales-tax exemption for these laptops and directed
-that no tax be added; the listed Suggested List price is the checkout total.
-The owner also confirmed Windows 11, factory charger, no pre-purchase inspection,
-no seller warranty, and final sale with no refunds or returns, including at pickup.
+that no tax be added; the listed price is the checkout total.
+The owner also confirmed Windows 11 and factory charger. The current posted
+policy allows the buyer to inspect and decline the laptop for a refund at the
+scheduled pickup. Once the buyer accepts it and it is handed over, the sale is
+final. There is no pre-purchase inspection, seller warranty, or technical support.
 The site does not charge cards directly.
+
+The owner chose Gmail for purchase notices to David and Parker, Monday/Wednesday
+pickup lists, and stock alerts. Gmail is not connected yet. These automatic
+messages also need a payment-event receiver or equivalent paid-session
+reconciliation. The existing GitHub Pages site and Stripe inventory read do
+not send those messages.
 
 The existing five-minute GitHub Actions workflow checks Stripe's native
 completed-session counters. `sync-inventory.mjs` now reads the laptop catalog

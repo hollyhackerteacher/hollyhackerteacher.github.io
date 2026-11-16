@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { saleState } from '../shop/laptops/laptops.mjs';
+import { upcomingPickupSlots, pickupCheckoutUrl } from '../shop/laptops/pickup.mjs';
 
 test('only stock 33–36 has public prices and checkout links', async () => {
   const { products } = JSON.parse(await readFile(new URL('../assets/laptops.json', import.meta.url)));
@@ -28,8 +29,9 @@ test('only stock 33–36 has public prices and checkout links', async () => {
 test('new sheet condition and battery reports are shown for the four offered units', async () => {
   const { products } = JSON.parse(await readFile(new URL('../assets/laptops.json', import.meta.url)));
   const forSale = products.filter(p => p.saleStatus === 'available');
-  assert.deepEqual(forSale.map(p => p.batteryHealthPercent), [81, 92, 99, 87]);
+  assert.deepEqual(forSale.map(p => p.batteryDetails.match(/Battery health: (\d+)%/)?.[1]), ['81', '92', '99', '87']);
   assert.ok(forSale.every(p => p.batteryDetails.includes('Estimated')));
+  assert.ok(products.every(p => !('batteryCapacityWh' in p) && !('batteryHealthPercent' in p)));
   const cracked = forSale.find(p => p.stockNumber === 34);
   assert.equal(cracked.grade, 'C');
   assert.match(cracked.condition, /crack.*left.*touchpad click sometimes sticks/i);
@@ -42,4 +44,17 @@ test('sold-out stock disables active checkout', () => {
   };
   const snapshot = { schemaVersion: 1, products: { 'laptop-33': { remaining: 0, available: false } } };
   assert.deepEqual(saleState(product, snapshot), { label: 'Sold out', available: false });
+});
+
+test('pickup slots begin November 19 and require 24 hours of lead time', () => {
+  assert.equal(upcomingPickupSlots(new Date('2026-11-16T18:00:00Z'))[0].value, '20261119');
+  assert.equal(upcomingPickupSlots(new Date('2026-11-24T02:00:00Z'))[0].value, '20261124');
+  assert.equal(upcomingPickupSlots(new Date('2026-11-24T02:01:00Z'))[0].value, '20261126');
+});
+
+test('selected pickup date is carried into the Stripe checkout reference', () => {
+  const now = new Date('2026-11-16T18:00:00Z');
+  const url = pickupCheckoutUrl('https://buy.stripe.com/example', 33, '20261119', now);
+  assert.equal(new URL(url).searchParams.get('client_reference_id'), 'laptop-33-pickup-20261119');
+  assert.equal(pickupCheckoutUrl('https://buy.stripe.com/example', 33, '20261117', now), null);
 });

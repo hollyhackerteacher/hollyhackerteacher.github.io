@@ -5,6 +5,11 @@ numbers in `Laptop Sale Sheet (1).xlsx`, #21–#36. Only #33–#36 are currently
 for sale at the sheet's **Sale Price** amounts ($1,100, $900, $1,100, $1,100).
 The other 12 have no public price or checkout URL until released. Their Stripe
 links stay deactivated. Each stock number identifies one physical used machine.
+The revised Stripe default prices for #21–#26 are $350, $300, $275, $375,
+$350, and $350 respectively. Their older deactivated Payment Links still point
+to the previous prices. Create replacement one-payment links at the new prices
+and update the link IDs and URLs before releasing those stock numbers. The
+inventory sync will reject a link whose price differs from the catalog.
 The owner requested full details for each machine, including service tag,
 cores/threads, the complete graphics description, weight, and dimensions.
 The Latitude 5520 CPU model in the sheet appears truncated (`i7-118G7`);
@@ -52,8 +57,8 @@ Precision 7550 front/closed composite, Precision 7670 front/lid/left/right views
 and MSI Prestige 14 front/closed/left/right views come from Dell and MSI assets.
 The Precision 7560 front, rear/lid, left, and right views are official Dell
 gallery images. Each model uses the same reference views across its individual
-stock-number cards. Buyers should request photos of the actual unit to inspect
-cosmetic wear.
+stock-number cards. The condition notes identify known cosmetic wear on the
+individual machines.
 
 The Stripe connector was unavailable, so the products and links were created
 and verified in the owner's authenticated Stripe Dashboard. The product image

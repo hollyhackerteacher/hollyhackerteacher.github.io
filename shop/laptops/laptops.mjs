@@ -154,7 +154,7 @@ function render() {
   const live = products.filter(p => saleState(p, inventory).confirmed).length;
   const checked = Date.parse(inventory?.checkedAt || '');
   const fresh = stockSnapshotIsFresh(inventory);
-  const count = fresh ? `${live} laptops shown available` : 'Live stock status could not be confirmed';
+  const count = fresh ? `${live} ${live === 1 ? 'laptop' : 'laptops'} shown available` : 'Live stock status could not be confirmed';
   const when = Number.isFinite(checked)
     ? ` Last checked ${new Intl.DateTimeFormat('en-US', { timeZone: 'America/Denver', hour: 'numeric', minute: '2-digit' }).format(new Date(checked))} Mountain.`
     : '';

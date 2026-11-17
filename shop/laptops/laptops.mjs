@@ -2,9 +2,11 @@ import { upcomingPickupSlots, pickupCheckoutUrl } from './pickup.mjs';
 
 const grid = globalThis.document?.querySelector('#laptop-grid');
 const note = globalThis.document?.querySelector('#availability-note');
+const liveStockUrl = 'https://script.google.com/macros/s/AKfycbwHBzveCocsHtuMarUVs5Ukbt069GVnV8Yn9l8ZxUJ7SBYfsLsPYOVlMv-c5t1ZvYx1/exec';
 let products = [];
 let inventory = null;
 let filter = 'all';
+let liveRequest = null;
 
 function node(tag, className, text) {
   const element = document.createElement(tag);
@@ -144,7 +146,13 @@ function render() {
     .sort((a, b) => Number(b.saleStatus === 'available') - Number(a.saleStatus === 'available') || a.stockNumber - b.stockNumber).map(card));
   grid.setAttribute('aria-busy', 'false');
   const live = products.filter(p => saleState(p, inventory).available).length;
-  note.textContent = live ? `${live} laptops currently available for checkout. One of each stock number. Other machines are not yet for sale.` : 'No laptops are currently available for checkout. Additional stock will appear here when it is ready.';
+  const checked = Date.parse(inventory?.checkedAt || '');
+  const fresh = Number.isFinite(checked) && Date.now() - checked < 120_000;
+  const count = inventory ? (fresh ? `${live} laptops shown available` : `Last stock check showed ${live} available`) : 'Checking stock';
+  const when = Number.isFinite(checked)
+    ? ` Last checked ${new Intl.DateTimeFormat('en-US', { timeZone: 'America/Denver', hour: 'numeric', minute: '2-digit' }).format(new Date(checked))} Mountain.`
+    : '';
+  note.textContent = `${count}.${when} Stripe Checkout makes the final availability decision; this page may lag a sale.`;
 }
 
 if (grid) document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => {
@@ -153,12 +161,56 @@ if (grid) document.querySelectorAll('[data-filter]').forEach(button => button.ad
     render();
   }));
 
+export function chooseStockSnapshot(current, snapshot, catalog) {
+  if (snapshot?.schemaVersion !== 1 || !snapshot.products ||
+      !Number.isFinite(Date.parse(snapshot.checkedAt))) return current;
+  if (catalog.some(product => product.saleStatus === 'available' &&
+      (!snapshot.products[product.id] || !Number.isSafeInteger(snapshot.products[product.id].remaining)))) return current;
+  if (current && Date.parse(snapshot.checkedAt) < Date.parse(current.checkedAt)) return current;
+  return snapshot;
+}
+
+function acceptInventory(snapshot) {
+  const chosen = chooseStockSnapshot(inventory, snapshot, products);
+  if (chosen === inventory) return false;
+  inventory = chosen;
+  render();
+  return true;
+}
+
+function liveSnapshot() {
+  if (!liveStockUrl.startsWith('https://script.google.com/macros/s/')) return Promise.resolve(null);
+  if (liveRequest) return liveRequest;
+  liveRequest = new Promise(resolve => {
+    const callback = 'fireboltStockUpdate';
+    const script = document.createElement('script');
+    let finished = false;
+    const finish = value => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timeout);
+      delete globalThis[callback];
+      script.remove();
+      resolve(value);
+    };
+    const timeout = setTimeout(() => finish(null), 8_000);
+    globalThis[callback] = result => finish(result);
+    script.onerror = () => finish(null);
+    script.src = `${liveStockUrl}?callback=${callback}&t=${Date.now()}`;
+    document.head.append(script);
+  }).finally(() => { liveRequest = null; });
+  return liveRequest;
+}
+
 async function refresh() {
   try {
     const response = await fetch(`../../assets/inventory.json?t=${Date.now()}`, { cache: 'no-store' });
-    if (response.ok) inventory = await response.json();
+    if (response.ok) acceptInventory(await response.json());
   } catch { /* Stripe checkout remains the final availability check. */ }
-  if (products.length) render();
+  try {
+    const latest = await liveSnapshot();
+    if (latest) acceptInventory(latest);
+  } catch { /* The published snapshot remains the fallback. */ }
 }
 
 if (grid) try {
@@ -167,7 +219,7 @@ if (grid) try {
   ({ products } = await response.json());
   render();
   await refresh();
-  setInterval(() => { if (!document.hidden) refresh(); }, 60_000);
+  setInterval(() => { if (!document.hidden) refresh(); }, 30_000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
 } catch {
   grid.setAttribute('aria-busy', 'false');

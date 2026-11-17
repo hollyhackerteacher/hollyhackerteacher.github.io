@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { saleState } from '../shop/laptops/laptops.mjs';
+import { chooseStockSnapshot, saleState } from '../shop/laptops/laptops.mjs';
 import { upcomingPickupSlots, pickupCheckoutUrl } from '../shop/laptops/pickup.mjs';
 
 test('only stock 33–36 has public prices and checkout links', async () => {
@@ -44,6 +44,22 @@ test('sold-out stock disables active checkout', () => {
   };
   const snapshot = { schemaVersion: 1, products: { 'laptop-33': { remaining: 0, available: false } } };
   assert.deepEqual(saleState(product, snapshot), { label: 'Sold out', available: false });
+});
+
+test('a newer Stripe check replaces a stale published stock count', () => {
+  const catalog = [{ id: 'laptop-33', saleStatus: 'available', priceInCents: 110000,
+    paymentLink: 'https://buy.stripe.com/example', stripePaymentLinkId: 'plink_example',
+    stripePriceId: 'price_example', stripeProductId: 'prod_example' }];
+  const published = { schemaVersion: 1, checkedAt: '2026-11-17T16:00:00Z', products: {
+    'laptop-33': { remaining: 1, available: true }
+  } };
+  const stripe = { schemaVersion: 1, checkedAt: '2026-11-17T16:01:00Z', source: 'stripe', products: {
+    'laptop-33': { remaining: 0, available: false }
+  } };
+  assert.equal(chooseStockSnapshot(published, stripe, catalog), stripe);
+  assert.equal(saleState(catalog[0], stripe).label, 'Sold out');
+  assert.equal(chooseStockSnapshot(stripe, published, catalog), stripe);
+  assert.equal(chooseStockSnapshot(stripe, { ...stripe, products: {} }, catalog), stripe);
 });
 
 test('pickup slots begin November 19 and require 24 hours of lead time', () => {

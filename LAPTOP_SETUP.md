@@ -45,11 +45,12 @@ scheduled pickup. Once the buyer accepts it and it is handed over, the sale is
 final. There is no pre-purchase inspection, seller warranty, or technical support.
 The site does not charge cards directly.
 
-The owner chose Gmail for purchase notices to David and Parker, Monday/Wednesday
-pickup lists, and stock alerts. Gmail is not connected yet. These automatic
-messages also need a payment-event receiver or equivalent paid-session
-reconciliation. The existing GitHub Pages site and Stripe inventory read do
-not send those messages.
+The owner connected Gmail for purchase notices to David and Parker and
+Monday/Wednesday pickup lists. These automatic messages still need a payment
+event receiver or equivalent paid-session reconciliation. The existing GitHub
+Pages site and Stripe inventory read do not send those messages. The owner
+chose to remove the stock-alert signup rather than manage the mailing list
+manually; visitors should check the page for future listings.
 
 The existing five-minute GitHub Actions workflow checks Stripe's native
 completed-session counters. `sync-inventory.mjs` now reads the laptop catalog

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { chooseStockSnapshot, saleState } from '../shop/laptops/laptops.mjs';
+import { chooseStockSnapshot, saleState, stockSnapshotIsFresh } from '../shop/laptops/laptops.mjs';
 import { upcomingPickupSlots, pickupCheckoutUrl } from '../shop/laptops/pickup.mjs';
 
 test('only stock 33–36 has public prices and checkout links', async () => {
@@ -18,6 +18,7 @@ test('only stock 33–36 has public prices and checkout links', async () => {
     assert.ok(product.condition);
     assert.match(product.paymentLink, /^https:\/\/buy\.stripe\.com\/[A-Za-z0-9]+$/);
     assert.equal(saleState(product, null).available, true);
+    assert.equal(saleState(product, null).confirmed, false);
   }
   for (const product of products.filter(p => p.saleStatus !== 'available')) {
     assert.equal(product.priceInCents, null);
@@ -60,6 +61,24 @@ test('a newer Stripe check replaces a stale published stock count', () => {
   assert.equal(saleState(catalog[0], stripe).label, 'Sold out');
   assert.equal(chooseStockSnapshot(stripe, published, catalog), stripe);
   assert.equal(chooseStockSnapshot(stripe, { ...stripe, products: {} }, catalog), stripe);
+});
+
+test('old stock never claims a laptop is available', () => {
+  const product = { id: 'laptop-33', saleStatus: 'available', priceInCents: 110000,
+    paymentLink: 'https://buy.stripe.com/example', stripePaymentLinkId: 'plink_example',
+    stripePriceId: 'price_example', stripeProductId: 'prod_example' };
+  const now = Date.parse('2026-11-17T22:00:00Z');
+  const stock = { schemaVersion: 1, checkedAt: '2026-11-17T21:59:30Z', products: {
+    'laptop-33': { remaining: 1, available: true }
+  } };
+  assert.equal(stockSnapshotIsFresh(stock, now), true);
+  assert.equal(saleState(product, stock, now).confirmed, true);
+  const old = { ...stock, checkedAt: '2026-11-17T21:50:00Z' };
+  assert.equal(stockSnapshotIsFresh(old, now), false);
+  assert.deepEqual(saleState(product, old, now), {
+    label: 'Check availability in Stripe', available: true, confirmed: false, link: 'https://buy.stripe.com/example'
+  });
+  assert.equal(saleState(product, null, now).confirmed, false);
 });
 
 test('pickup slots begin November 19 and require 24 hours of lead time', () => {

@@ -25,7 +25,12 @@ export function checkoutUrl(value) {
   } catch { return null; }
 }
 
-export function saleState(product, snapshot) {
+export function stockSnapshotIsFresh(snapshot, now = Date.now()) {
+  const checked = Date.parse(snapshot?.checkedAt || '');
+  return Number.isFinite(checked) && checked <= now + 60_000 && now - checked <= 120_000;
+}
+
+export function saleState(product, snapshot, now = Date.now()) {
   if (product.saleStatus !== 'available') return { label: 'Not yet for sale', available: false };
   if (!Number.isSafeInteger(product.priceInCents) || product.priceInCents <= 0) return { label: 'Checkout coming soon', available: false };
   const link = checkoutUrl(product.paymentLink);
@@ -34,7 +39,8 @@ export function saleState(product, snapshot) {
   if (!link || !product.stripePaymentLinkId || !product.stripePriceId || !product.stripeProductId) {
     return { label: 'Checkout coming soon', available: false };
   }
-  return { label: 'Buy this laptop', available: true, link };
+  const confirmed = stock?.available === true && stock?.remaining > 0 && stockSnapshotIsFresh(snapshot, now);
+  return { label: confirmed ? 'Buy this laptop' : 'Check availability in Stripe', available: true, confirmed, link };
 }
 
 function photoGallery(product) {
@@ -82,7 +88,7 @@ function card(product) {
   article.append(photoGallery(product));
   const body = node('div', 'laptop-card__body');
   const state = saleState(product, inventory);
-  body.append(node('p', 'stock-tag', `STOCK #${product.stockNumber}  ·  ${product.saleStatus === 'available' ? (state.label === 'Sold out' ? 'SOLD OUT' : 'ONE OF ONE') : 'COMING SOON'}`));
+  body.append(node('p', 'stock-tag', `STOCK #${product.stockNumber}  ·  ${product.saleStatus === 'available' ? (state.label === 'Sold out' ? 'SOLD OUT' : state.confirmed ? 'ONE OF ONE' : 'CHECK STRIPE') : 'COMING SOON'}`));
   body.append(node('h3', null, product.model));
   body.append(node('p', 'condition', `Grade ${product.grade} · ${product.condition}`));
   body.append(node('p', 'included', 'Factory charger · Windows 11 installed'));
@@ -119,7 +125,7 @@ function card(product) {
       option.value = slot.value;
       select.append(option);
     });
-    const buy = node('button', 'buy-button', 'Continue to secure checkout ↗');
+    const buy = node('button', 'buy-button', state.confirmed ? 'Continue to secure checkout ↗' : 'Check availability in Stripe ↗');
     buy.type = 'submit';
     form.append(label, select, node('p', 'purchase-limit', 'One laptop per buyer across all batches.'), buy);
     form.addEventListener('submit', event => {
@@ -145,10 +151,10 @@ function render() {
   grid.replaceChildren(...products.filter(p => filter === 'all' || p.model.startsWith(filter))
     .sort((a, b) => Number(b.saleStatus === 'available') - Number(a.saleStatus === 'available') || a.stockNumber - b.stockNumber).map(card));
   grid.setAttribute('aria-busy', 'false');
-  const live = products.filter(p => saleState(p, inventory).available).length;
+  const live = products.filter(p => saleState(p, inventory).confirmed).length;
   const checked = Date.parse(inventory?.checkedAt || '');
-  const fresh = Number.isFinite(checked) && Date.now() - checked < 120_000;
-  const count = inventory ? (fresh ? `${live} laptops shown available` : `Last stock check showed ${live} available`) : 'Checking stock';
+  const fresh = stockSnapshotIsFresh(inventory);
+  const count = fresh ? `${live} laptops shown available` : 'Live stock status could not be confirmed';
   const when = Number.isFinite(checked)
     ? ` Last checked ${new Intl.DateTimeFormat('en-US', { timeZone: 'America/Denver', hour: 'numeric', minute: '2-digit' }).format(new Date(checked))} Mountain.`
     : '';
@@ -170,14 +176,6 @@ export function chooseStockSnapshot(current, snapshot, catalog) {
   return snapshot;
 }
 
-function acceptInventory(snapshot) {
-  const chosen = chooseStockSnapshot(inventory, snapshot, products);
-  if (chosen === inventory) return false;
-  inventory = chosen;
-  render();
-  return true;
-}
-
 function liveSnapshot() {
   if (!liveStockUrl.startsWith('https://script.google.com/macros/s/')) return Promise.resolve(null);
   if (liveRequest) return liveRequest;
@@ -193,7 +191,7 @@ function liveSnapshot() {
       script.remove();
       resolve(value);
     };
-    const timeout = setTimeout(() => finish(null), 8_000);
+    const timeout = setTimeout(() => finish(null), 12_000);
     globalThis[callback] = result => finish(result);
     script.onerror = () => finish(null);
     script.src = `${liveStockUrl}?callback=${callback}&t=${Date.now()}`;
@@ -203,21 +201,22 @@ function liveSnapshot() {
 }
 
 async function refresh() {
-  try {
-    const response = await fetch(`../../assets/inventory.json?t=${Date.now()}`, { cache: 'no-store' });
-    if (response.ok) acceptInventory(await response.json());
-  } catch { /* Stripe checkout remains the final availability check. */ }
-  try {
-    const latest = await liveSnapshot();
-    if (latest) acceptInventory(latest);
-  } catch { /* The published snapshot remains the fallback. */ }
+  const [live, backup] = await Promise.all([
+    liveSnapshot().catch(() => null),
+    fetch(`../../assets/inventory.json?t=${Date.now()}`, { cache: 'no-store' })
+      .then(response => response.ok ? response.json() : null).catch(() => null)
+  ]);
+  let next = inventory;
+  if (stockSnapshotIsFresh(backup)) next = chooseStockSnapshot(next, backup, products);
+  if (live) next = chooseStockSnapshot(next, live, products);
+  inventory = next;
+  render();
 }
 
 if (grid) try {
   const response = await fetch('../../assets/laptops.json');
   if (!response.ok) throw new Error('Catalog unavailable');
   ({ products } = await response.json());
-  render();
   await refresh();
   setInterval(() => { if (!document.hidden) refresh(); }, 30_000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });

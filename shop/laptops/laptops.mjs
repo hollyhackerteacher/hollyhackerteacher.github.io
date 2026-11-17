@@ -121,7 +121,7 @@ function card(product) {
     });
     const buy = node('button', 'buy-button', 'Continue to secure checkout ↗');
     buy.type = 'submit';
-    form.append(label, select, buy);
+    form.append(label, select, node('p', 'purchase-limit', 'One laptop per buyer across all batches.'), buy);
     form.addEventListener('submit', event => {
       event.preventDefault();
       const url = pickupCheckoutUrl(state.link, product.stockNumber, select.value);

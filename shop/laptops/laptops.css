@@ -4,6 +4,7 @@
 .pause-notice{margin:28px 0 0;padding:18px 22px;border:1px solid #b9f67b;border-radius:12px;background:#17291c;color:#e8f5e9;line-height:1.5}.pause-notice strong{color:#b9f67b}
 
 .pickup-form{display:grid;gap:9px;width:100%}.pickup-form label{color:#d6e8da;font-size:.8rem;font-weight:700}.pickup-form select{width:100%;padding:10px 12px;border:1px solid #527054;border-radius:8px;background:#0b160f;color:#ecf7ef;font:inherit}.pickup-form .buy-button{border:0;cursor:pointer;font-family:inherit}.purchase:has(.pickup-form){display:block}
+.sale-terms p.sale-terms__limit{margin:-6px 0 23px;padding:13px 16px;border:1px solid #5c7950;border-radius:10px;background:#1d3522}.sale-terms__limit strong{color:#d8ff9c}.purchase-limit{margin:0;color:#d0dfd3;font-size:.76rem;line-height:1.4}
 
 .future-stock{padding:28px 32px;border:1px solid #355341;border-radius:18px;background:#14251a}.future-stock h2{font-family:Poppins,sans-serif;margin:5px 0 8px}@media(max-width:680px){.future-stock{padding:24px}}
 .future-stock>p:not(.eyebrow){color:#c9d8ce;line-height:1.55;max-width:690px;margin:0 0 18px}

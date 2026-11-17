@@ -49,7 +49,8 @@ test('sold-out stock disables active checkout', () => {
 test('pickup slots begin November 19 and require 24 hours of lead time', () => {
   assert.equal(upcomingPickupSlots(new Date('2026-11-16T18:00:00Z'))[0].value, '20261119');
   assert.equal(upcomingPickupSlots(new Date('2026-11-24T02:00:00Z'))[0].value, '20261124');
-  assert.equal(upcomingPickupSlots(new Date('2026-11-24T02:01:00Z'))[0].value, '20261126');
+  assert.equal(upcomingPickupSlots(new Date('2026-11-24T02:01:00Z'))[0].value, '20261201');
+  assert.ok(upcomingPickupSlots(new Date('2026-11-16T18:00:00Z')).every(slot => slot.value !== '20261126'));
 });
 
 test('selected pickup date is carried into the Stripe checkout reference', () => {
@@ -57,4 +58,5 @@ test('selected pickup date is carried into the Stripe checkout reference', () =>
   const url = pickupCheckoutUrl('https://buy.stripe.com/example', 33, '20261119', now);
   assert.equal(new URL(url).searchParams.get('client_reference_id'), 'laptop-33-pickup-20261119');
   assert.equal(pickupCheckoutUrl('https://buy.stripe.com/example', 33, '20261117', now), null);
+  assert.equal(pickupCheckoutUrl('https://buy.stripe.com/example', 33, '20261126', now), null);
 });

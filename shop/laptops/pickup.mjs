@@ -1,5 +1,6 @@
 const ZONE = 'America/Denver';
 const FIRST_PICKUP = '2026-11-19';
+const UNAVAILABLE_PICKUPS = new Set(['2026-11-26']);
 const DAY_MS = 86_400_000;
 
 function mountainParts(date) {
@@ -36,7 +37,7 @@ export function upcomingPickupSlots(now = new Date(), count = 8) {
     const month = day.getUTCMonth() + 1;
     const date = day.getUTCDate();
     const iso = `${year}-${String(month).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
-    if (iso < FIRST_PICKUP || mountainPickupInstant(year, month, date) - now.getTime() < DAY_MS) continue;
+    if (iso < FIRST_PICKUP || UNAVAILABLE_PICKUPS.has(iso) || mountainPickupInstant(year, month, date) - now.getTime() < DAY_MS) continue;
     slots.push({ value: iso.replaceAll('-', ''), label: `${labelFormat.format(day)} · 7:00 p.m.` });
   }
   return slots;

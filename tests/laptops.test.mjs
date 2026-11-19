@@ -4,15 +4,15 @@ import { readFile } from 'node:fs/promises';
 import { chooseStockSnapshot, saleState, stockSnapshotIsFresh } from '../shop/laptops/laptops.mjs';
 import { upcomingPickupSlots, pickupCheckoutUrl } from '../shop/laptops/pickup.mjs';
 
-test('only stock 33–36 has public prices and checkout links', async () => {
+test('only released stock has public prices and checkout links', async () => {
   const { products } = JSON.parse(await readFile(new URL('../assets/laptops.json', import.meta.url)));
   assert.equal(products.length, 16);
   assert.equal(new Set(products.map(p => p.stockNumber)).size, 16);
   assert.equal(new Set(products.map(p => p.serial)).size, 16);
   const forSale = products.filter(p => p.saleStatus === 'available');
-  assert.deepEqual(forSale.map(p => p.stockNumber), [33, 34, 35, 36]);
-  assert.deepEqual(forSale.map(p => p.priceInCents), [110000, 90000, 110000, 110000]);
-  assert.equal(new Set(forSale.map(p => p.stripePaymentLinkId)).size, 4);
+  assert.deepEqual(forSale.map(p => p.stockNumber), [30, 31, 32, 33, 34, 35, 36]);
+  assert.deepEqual(forSale.map(p => p.priceInCents), [110000, 110000, 90000, 110000, 90000, 110000, 110000]);
+  assert.equal(new Set(forSale.map(p => p.stripePaymentLinkId)).size, 7);
   for (const product of forSale) {
     assert.equal(product.runLimit, 1);
     assert.ok(product.condition);
@@ -27,15 +27,16 @@ test('only stock 33–36 has public prices and checkout links', async () => {
   }
 });
 
-test('new sheet condition and battery reports are shown for the four offered units', async () => {
+test('sheet condition and battery reports are shown for offered units', async () => {
   const { products } = JSON.parse(await readFile(new URL('../assets/laptops.json', import.meta.url)));
   const forSale = products.filter(p => p.saleStatus === 'available');
-  assert.deepEqual(forSale.map(p => p.batteryDetails.match(/Battery health: (\d+)%/)?.[1]), ['81', '92', '99', '87']);
+  assert.deepEqual(forSale.map(p => p.batteryDetails.match(/Battery health: (\d+)%/)?.[1]), ['93', '84', '84', '81', '92', '99', '87']);
   assert.ok(forSale.every(p => p.batteryDetails.includes('Estimated')));
   assert.ok(products.every(p => !('batteryCapacityWh' in p) && !('batteryHealthPercent' in p)));
   const cracked = forSale.find(p => p.stockNumber === 34);
   assert.equal(cracked.grade, 'C');
   assert.match(cracked.condition, /crack.*left.*touchpad click sometimes sticks/i);
+  assert.match(forSale.find(p => p.stockNumber === 32).condition, /faint clicks when under load/i);
 });
 
 test('sold-out stock disables active checkout', () => {

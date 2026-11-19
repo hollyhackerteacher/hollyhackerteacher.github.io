@@ -147,15 +147,17 @@ function card(product) {
   return article;
 }
 
-export function visibleProducts(catalog, modelFilter = 'all') {
-  return catalog.filter(p => p.archived !== true && (modelFilter === 'all' || p.model.startsWith(modelFilter)));
+export function visibleProducts(catalog, modelFilter = 'all', snapshot = null) {
+  return catalog.filter(p => p.archived !== true &&
+    !(p.saleStatus === 'available' && snapshot?.schemaVersion === 1 && snapshot.products?.[p.id]?.remaining === 0) &&
+    (modelFilter === 'all' || p.model.startsWith(modelFilter)));
 }
 
 function render() {
-  grid.replaceChildren(...visibleProducts(products, filter)
+  grid.replaceChildren(...visibleProducts(products, filter, inventory)
     .sort((a, b) => Number(b.saleStatus === 'available') - Number(a.saleStatus === 'available') || a.stockNumber - b.stockNumber).map(card));
   grid.setAttribute('aria-busy', 'false');
-  const live = visibleProducts(products).filter(p => saleState(p, inventory).confirmed).length;
+  const live = visibleProducts(products, 'all', inventory).filter(p => saleState(p, inventory).confirmed).length;
   const checked = Date.parse(inventory?.checkedAt || '');
   const fresh = stockSnapshotIsFresh(inventory);
   const count = fresh ? `${live} ${live === 1 ? 'laptop' : 'laptops'} shown available` : 'Live stock status could not be confirmed';

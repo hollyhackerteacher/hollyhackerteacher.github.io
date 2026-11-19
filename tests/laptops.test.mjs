@@ -14,6 +14,8 @@ test('only released stock has public prices and checkout links', async () => {
   assert.equal(displayed.length, 13);
   assert.ok(displayed.every(p => ![33, 34, 35].includes(p.stockNumber)));
   assert.deepEqual(visibleProducts(products, 'MSI').map(p => p.stockNumber), [30, 31, 32, 36]);
+  const soldSnapshot = { schemaVersion: 1, products: { 'laptop-28': { remaining: 0, available: false } } };
+  assert.ok(!visibleProducts(products, 'all', soldSnapshot).some(p => p.stockNumber === 28));
   const forSale = displayed.filter(p => p.saleStatus === 'available');
   assert.deepEqual(forSale.map(p => p.stockNumber), [28, 30, 31, 32, 36]);
   assert.deepEqual(forSale.map(p => p.priceInCents), [72500, 110000, 110000, 90000, 110000]);

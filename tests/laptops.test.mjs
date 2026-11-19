@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { chooseStockSnapshot, saleState, stockSnapshotIsFresh, visibleProducts } from '../shop/laptops/laptops.mjs';
+import { chooseStockSnapshot, isHeavierLaptop, saleState, stockSnapshotIsFresh, visibleProducts } from '../shop/laptops/laptops.mjs';
 import { upcomingPickupSlots, pickupCheckoutUrl } from '../shop/laptops/pickup.mjs';
 
 test('only released stock has public prices and checkout links', async () => {
@@ -14,6 +14,7 @@ test('only released stock has public prices and checkout links', async () => {
   assert.equal(displayed.length, 13);
   assert.ok(displayed.every(p => ![33, 34, 35].includes(p.stockNumber)));
   assert.deepEqual(visibleProducts(products, 'MSI').map(p => p.stockNumber), [30, 31, 32, 36]);
+  assert.deepEqual(displayed.filter(isHeavierLaptop).map(p => p.stockNumber), [27, 28, 29, 30]);
   const soldSnapshot = { schemaVersion: 1, products: { 'laptop-28': { remaining: 0, available: false } } };
   assert.ok(!visibleProducts(products, 'all', soldSnapshot).some(p => p.stockNumber === 28));
   const forSale = displayed.filter(p => p.saleStatus === 'available');

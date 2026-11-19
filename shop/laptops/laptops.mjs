@@ -30,6 +30,10 @@ export function stockSnapshotIsFresh(snapshot, now = Date.now()) {
   return Number.isFinite(checked) && checked <= now + 60_000 && now - checked <= 120_000;
 }
 
+export function isHeavierLaptop(product) {
+  return Number.parseFloat(product.weight) >= 5;
+}
+
 export function saleState(product, snapshot, now = Date.now()) {
   if (product.saleStatus !== 'available') return { label: 'Not yet for sale', available: false };
   if (!Number.isSafeInteger(product.priceInCents) || product.priceInCents <= 0) return { label: 'Checkout coming soon', available: false };
@@ -91,6 +95,7 @@ function card(product) {
   body.append(node('p', 'stock-tag', `STOCK #${product.stockNumber}  ·  ${product.saleStatus === 'available' ? (state.label === 'Sold out' ? 'SOLD OUT' : state.confirmed ? 'ONE OF ONE' : 'CHECK STRIPE') : 'COMING SOON'}`));
   body.append(node('h3', null, product.model));
   body.append(node('p', 'condition', `Grade ${product.grade} · ${product.condition}`));
+  if (isHeavierLaptop(product)) body.append(node('p', 'carry-note', 'More substantial to carry · 5 lb+ laptop'));
   body.append(node('p', 'included', 'Factory charger · Windows 11 installed'));
   const specs = node('dl', 'specs');
   specs.append(

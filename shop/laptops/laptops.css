@@ -8,3 +8,4 @@
 
 .future-stock{padding:28px 32px;border:1px solid #355341;border-radius:18px;background:#14251a}.future-stock h2{font-family:Poppins,sans-serif;margin:5px 0 8px}@media(max-width:680px){.future-stock{padding:24px}}
 .future-stock>p:not(.eyebrow){color:#c9d8ce;line-height:1.55;max-width:690px;margin:0 0 18px}
+.carry-note{align-self:flex-start;margin:-10px 0 16px;padding:5px 9px;border:1px solid #6b6841;border-radius:999px;background:#262619;color:#ead9ad;font-size:.74rem;line-height:1.3}

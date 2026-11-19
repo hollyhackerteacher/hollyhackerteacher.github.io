@@ -147,11 +147,15 @@ function card(product) {
   return article;
 }
 
+export function visibleProducts(catalog, modelFilter = 'all') {
+  return catalog.filter(p => p.archived !== true && (modelFilter === 'all' || p.model.startsWith(modelFilter)));
+}
+
 function render() {
-  grid.replaceChildren(...products.filter(p => filter === 'all' || p.model.startsWith(filter))
+  grid.replaceChildren(...visibleProducts(products, filter)
     .sort((a, b) => Number(b.saleStatus === 'available') - Number(a.saleStatus === 'available') || a.stockNumber - b.stockNumber).map(card));
   grid.setAttribute('aria-busy', 'false');
-  const live = products.filter(p => saleState(p, inventory).confirmed).length;
+  const live = visibleProducts(products).filter(p => saleState(p, inventory).confirmed).length;
   const checked = Date.parse(inventory?.checkedAt || '');
   const fresh = stockSnapshotIsFresh(inventory);
   const count = fresh ? `${live} ${live === 1 ? 'laptop' : 'laptops'} shown available` : 'Live stock status could not be confirmed';
@@ -170,7 +174,7 @@ if (grid) document.querySelectorAll('[data-filter]').forEach(button => button.ad
 export function chooseStockSnapshot(current, snapshot, catalog) {
   if (snapshot?.schemaVersion !== 1 || !snapshot.products ||
       !Number.isFinite(Date.parse(snapshot.checkedAt))) return current;
-  if (catalog.some(product => product.saleStatus === 'available' &&
+  if (catalog.some(product => product.archived !== true && product.saleStatus === 'available' &&
       (!snapshot.products[product.id] || !Number.isSafeInteger(snapshot.products[product.id].remaining)))) return current;
   if (current && Date.parse(snapshot.checkedAt) < Date.parse(current.checkedAt)) return current;
   return snapshot;

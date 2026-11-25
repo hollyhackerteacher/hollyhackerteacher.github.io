@@ -9,18 +9,18 @@ test('only released stock has public prices and checkout links', async () => {
   assert.equal(products.length, 16);
   assert.equal(new Set(products.map(p => p.stockNumber)).size, 16);
   assert.equal(new Set(products.map(p => p.serial)).size, 16);
-  assert.deepEqual(products.filter(p => p.archived).map(p => p.stockNumber), [33, 34, 35]);
+  assert.deepEqual(products.filter(p => p.archived).map(p => p.stockNumber), [32, 33, 34, 35, 36]);
   const displayed = visibleProducts(products);
-  assert.equal(displayed.length, 13);
-  assert.ok(displayed.every(p => ![33, 34, 35].includes(p.stockNumber)));
-  assert.deepEqual(visibleProducts(products, 'MSI').map(p => p.stockNumber), [30, 31, 32, 36]);
+  assert.equal(displayed.length, 11);
+  assert.ok(displayed.every(p => ![32, 33, 34, 35, 36].includes(p.stockNumber)));
+  assert.deepEqual(visibleProducts(products, 'MSI').map(p => p.stockNumber), [30, 31]);
   assert.deepEqual(displayed.filter(isHeavierLaptop).map(p => p.stockNumber), [27, 28, 29, 30]);
   const soldSnapshot = { schemaVersion: 1, products: { 'laptop-28': { remaining: 0, available: false } } };
   assert.ok(!visibleProducts(products, 'all', soldSnapshot).some(p => p.stockNumber === 28));
   const forSale = displayed.filter(p => p.saleStatus === 'available');
-  assert.deepEqual(forSale.map(p => p.stockNumber), [28, 30, 31, 32, 36]);
-  assert.deepEqual(forSale.map(p => p.priceInCents), [72500, 110000, 110000, 90000, 110000]);
-  assert.equal(new Set(forSale.map(p => p.stripePaymentLinkId)).size, 5);
+  assert.deepEqual(forSale.map(p => p.stockNumber), [28, 30, 31]);
+  assert.deepEqual(forSale.map(p => p.priceInCents), [72500, 110000, 110000]);
+  assert.equal(new Set(forSale.map(p => p.stripePaymentLinkId)).size, 3);
   for (const product of forSale) {
     assert.equal(product.runLimit, 1);
     assert.ok(product.condition);
@@ -38,11 +38,11 @@ test('only released stock has public prices and checkout links', async () => {
 test('sheet condition and battery reports are shown for offered units', async () => {
   const { products } = JSON.parse(await readFile(new URL('../assets/laptops.json', import.meta.url)));
   const forSale = visibleProducts(products).filter(p => p.saleStatus === 'available');
-  assert.deepEqual(forSale.map(p => p.batteryDetails.match(/Battery health: (\d+)%/)?.[1]), ['66', '93', '84', '84', '87']);
+  assert.deepEqual(forSale.map(p => p.batteryDetails.match(/Battery health: (\d+)%/)?.[1]), ['66', '93', '84']);
   assert.ok(forSale.every(p => p.batteryDetails.includes('Estimated')));
   assert.ok(products.every(p => !('batteryCapacityWh' in p) && !('batteryHealthPercent' in p)));
   assert.equal(forSale.find(p => p.stockNumber === 28).grade, 'A+');
-  assert.match(forSale.find(p => p.stockNumber === 32).condition, /faint clicks when under load/i);
+  assert.match(products.find(p => p.stockNumber === 32).condition, /faint clicks when under load/i);
 });
 
 test('sold-out stock disables active checkout', () => {
